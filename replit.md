@@ -47,6 +47,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
   - Soft Cyan #A7FFF6 - accent glow
 - Categories: New (blue #1A56DB), Contacted (muted teal #8AA39B), Qualified (pearl aqua #95D9C3), Unknown (grey olive #738982)
 
-### Twilio Setup
-Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
-Messages are queued if Twilio is not configured.
+### Vonage SMS Setup
+Requires env vars: VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_PHONE_NUMBER
+Uses Vonage REST API (rest.nexmo.com/sms/json) for sending SMS.
+Messages are queued if Vonage is not configured.

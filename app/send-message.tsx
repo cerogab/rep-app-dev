@@ -74,7 +74,7 @@ export default function SendMessageScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(
         'Message Queued',
-        `Message saved for ${contact.fullName}. Twilio is not configured yet - set up your API keys to send SMS.`,
+        `Message saved for ${contact.fullName}. Vonage is not configured yet - set up your API keys to send SMS.`,
         [{ text: 'OK', onPress: () => router.back() }],
       );
       if (contact.category === 'New') {
