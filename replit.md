@@ -5,9 +5,11 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 
 ## Recent Changes
 - 2026-02-20: Initial build - all screens, contact management, Twilio SMS backend
+- 2026-02-20: Applied Coolors teal accent palette as accents (badges, charts, secondary text)
 
 ## User Preferences
-- Dark navy/blue color scheme (#0A1628, #1A56DB)
+- Dark navy/blue primary color scheme (#0A1628, #1A56DB)
+- Teal/green accent palette from Coolors for badges, charts, secondary text
 - Inter font family throughout
 - Manual Twilio API key setup (not connector OAuth)
 
@@ -30,9 +32,17 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `constants/colors.ts` - Color system
 
 ### Color Scheme
-- Primary: #1A56DB (blue)
-- Primary Dark: #0A1628 (navy)
-- Categories: New (blue), Contacted (orange), Qualified (green), Unknown (gray)
+- Primary: #1A56DB (blue) - headers, FAB, tab active, main CTA
+- Primary Dark: #0A1628 (navy) - gradient backgrounds
+- Accent Palette (Coolors teal):
+  - Granite #5C6F68 - secondary text
+  - Grey Olive #738982 - tertiary text, tab inactive
+  - Muted Teal #8AA39B - Contacted badge
+  - Muted Teal Light #90BEAF - chart bars (calls)
+  - Pearl Aqua #95D9C3 - Qualified badge, success states
+  - Aquamarine #A4F9C8 - highlights
+  - Soft Cyan #A7FFF6 - accent glow
+- Categories: New (blue #1A56DB), Contacted (muted teal #8AA39B), Qualified (pearl aqua #95D9C3), Unknown (grey olive #738982)
 
 ### Twilio Setup
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
