@@ -6,6 +6,8 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 ## Recent Changes
 - 2026-02-20: Initial build - all screens, contact management, Twilio SMS backend
 - 2026-02-20: Applied Coolors teal accent palette as accents (badges, charts, secondary text)
+- 2026-02-20: Added login screen (Figma design), auth context, logout flow
+- 2026-02-20: Renamed "Contacts" tab to "Receiver page", moved + button to header next to title
 
 ## User Preferences
 - Dark navy/blue primary color scheme (#0A1628, #1A56DB)
@@ -14,15 +16,19 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - Manual Twilio API key setup (not connector OAuth)
 
 ## Project Architecture
-- **Frontend**: Expo Router with file-based routing, React Context for contacts state, AsyncStorage for persistence
+- **Frontend**: Expo Router with file-based routing, React Context for contacts & auth state, AsyncStorage for persistence
 - **Backend**: Express on port 5000 with Twilio SMS endpoint
-- **Tabs**: Contacts (index), Trends (dashboard), Settings
+- **Auth**: Simple email/password login stored in AsyncStorage, auth gate in root layout
+- **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
 - **Stack**: contact-detail
+- **Auth Screen**: login.tsx (rendered directly by AuthGate, not via router)
 
 ### Key Files
+- `lib/auth-context.tsx` - Authentication state management with AsyncStorage
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
-- `app/(tabs)/index.tsx` - Contacts list with search & filter
+- `app/login.tsx` - Login screen (Figma design: logo, tagline, email/password, Face ID)
+- `app/(tabs)/index.tsx` - Receiver page (formerly Contacts) with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
 - `app/(tabs)/settings.tsx` - User profile & settings
 - `app/add-contact.tsx` - Add new contact modal
