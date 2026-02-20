@@ -7,7 +7,6 @@ import {
   TextInput,
   Pressable,
   Platform,
-  Linking,
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { useContacts, Contact } from '@/lib/contacts-context';
+import { useContacts, Contact, MessageFrequency } from '@/lib/contacts-context';
 import { ContactCard } from '@/components/ContactCard';
 import { FilterChips } from '@/components/FilterChips';
 
@@ -23,7 +22,7 @@ type FilterOption = 'All' | 'New' | 'Contacted' | 'Qualified';
 
 export default function ReceiverPage() {
   const insets = useSafeAreaInsets();
-  const { contacts, isLoading } = useContacts();
+  const { contacts, isLoading, updateContact } = useContacts();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterOption>('All');
 
@@ -44,17 +43,12 @@ export default function ReceiverPage() {
     return result;
   }, [contacts, filter, search]);
 
-  const handleCall = (contact: Contact) => {
-    const phoneUrl = `tel:${contact.phone.replace(/[^+\d]/g, '')}`;
-    Linking.openURL(phoneUrl).catch(() => {});
-  };
-
-  const handleEmail = (contact: Contact) => {
-    Linking.openURL(`mailto:${contact.email}`).catch(() => {});
-  };
-
   const handleContactPress = (contact: Contact) => {
     router.push({ pathname: '/contact-detail', params: { id: contact.id } });
+  };
+
+  const handleFrequencyChange = (contact: Contact, frequency: MessageFrequency) => {
+    updateContact(contact.id, { frequency });
   };
 
   const handleAddNew = () => {
@@ -66,8 +60,7 @@ export default function ReceiverPage() {
     <ContactCard
       contact={item}
       onPress={() => handleContactPress(item)}
-      onCall={() => handleCall(item)}
-      onEmail={() => handleEmail(item)}
+      onFrequencyChange={(freq) => handleFrequencyChange(item, freq)}
     />
   );
 

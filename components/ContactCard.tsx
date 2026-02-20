@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { Contact, ContactCategory } from '@/lib/contacts-context';
+import { Contact, ContactCategory, MessageFrequency } from '@/lib/contacts-context';
 
 const categoryColors: Record<ContactCategory, string> = {
   New: Colors.chipNew,
@@ -12,22 +12,20 @@ const categoryColors: Record<ContactCategory, string> = {
   Unknown: Colors.chipUnknown,
 };
 
+const FREQUENCIES: MessageFrequency[] = ['Weekly', 'Biweekly', 'Monthly'];
+
 interface ContactCardProps {
   contact: Contact;
   onPress: () => void;
-  onCall: () => void;
-  onEmail: () => void;
+  onFrequencyChange: (frequency: MessageFrequency) => void;
 }
 
-export function ContactCard({ contact, onPress, onCall, onEmail }: ContactCardProps) {
-  const handleCall = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onCall();
-  };
-
-  const handleEmail = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onEmail();
+export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCardProps) {
+  const handleFrequencySelect = (freq: MessageFrequency) => {
+    if (freq !== contact.frequency) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onFrequencyChange(freq);
+    }
   };
 
   return (
@@ -47,31 +45,45 @@ export function ContactCard({ contact, onPress, onCall, onEmail }: ContactCardPr
             <Text style={styles.company} numberOfLines={1}>{contact.company || contact.email}</Text>
           </View>
         </View>
-        <View style={styles.rightSection}>
-          <View style={styles.actions}>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
-              onPress={handleCall}
-              hitSlop={8}
-            >
-              <Ionicons name="call-outline" size={18} color={Colors.primary} />
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
-              onPress={handleEmail}
-              hitSlop={8}
-            >
-              <Ionicons name="mail-outline" size={18} color={Colors.primary} />
-            </Pressable>
-          </View>
-          <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
-            <Text style={styles.badgeText}>{contact.category}</Text>
-          </View>
+        <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
+          <Text style={styles.badgeText}>{contact.category}</Text>
         </View>
       </View>
       <View style={styles.frequencyRow}>
-        <Ionicons name="time-outline" size={13} color={Colors.textSecondary} />
-        <Text style={styles.frequencyText}>{contact.frequency}</Text>
+        <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.frequencyChips}
+          scrollEnabled={false}
+        >
+          {FREQUENCIES.map((freq) => {
+            const isActive = contact.frequency === freq;
+            return (
+              <Pressable
+                key={freq}
+                style={[
+                  styles.frequencyChip,
+                  isActive && styles.frequencyChipActive,
+                ]}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleFrequencySelect(freq);
+                }}
+                hitSlop={4}
+              >
+                <Text
+                  style={[
+                    styles.frequencyChipText,
+                    isActive && styles.frequencyChipTextActive,
+                  ]}
+                >
+                  {freq}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
     </Pressable>
   );
@@ -131,25 +143,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
   },
-  rightSection: {
-    alignItems: 'flex-end',
-    gap: 8,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  actionBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: Colors.primary + '10',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionBtnPressed: {
-    backgroundColor: Colors.primary + '25',
-  },
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 3,
@@ -163,15 +156,34 @@ const styles = StyleSheet.create({
   frequencyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 10,
-    paddingTop: 10,
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.border,
   },
-  frequencyText: {
-    fontFamily: 'Inter_400Regular',
+  frequencyChips: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  frequencyChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 12,
+    backgroundColor: Colors.inputBg,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  frequencyChipActive: {
+    backgroundColor: Colors.primary + '12',
+    borderColor: Colors.primary,
+  },
+  frequencyChipText: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: Colors.textTertiary,
+  },
+  frequencyChipTextActive: {
+    color: Colors.primary,
   },
 });
