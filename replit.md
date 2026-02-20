@@ -6,7 +6,6 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 ## Recent Changes
 - 2026-02-20: Initial build - all screens, contact management, Twilio SMS backend
 - 2026-02-20: Applied Coolors teal accent palette as accents (badges, charts, secondary text)
-- 2026-02-20: Added login screen with email/password auth based on Figma design, auth context with AsyncStorage persistence, logout from Settings
 
 ## User Preferences
 - Dark navy/blue primary color scheme (#0A1628, #1A56DB)
@@ -22,8 +21,6 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Stack**: contact-detail
 
 ### Key Files
-- `lib/auth-context.tsx` - Authentication state with AsyncStorage persistence
-- `app/login.tsx` - Login screen (email/password, Figma-matched design)
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
 - `app/(tabs)/index.tsx` - Contacts list with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
@@ -47,7 +44,6 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
   - Soft Cyan #A7FFF6 - accent glow
 - Categories: New (blue #1A56DB), Contacted (muted teal #8AA39B), Qualified (pearl aqua #95D9C3), Unknown (grey olive #738982)
 
-### Vonage SMS Setup
-Requires env vars: VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_PHONE_NUMBER
-Uses Vonage REST API (rest.nexmo.com/sms/json) for sending SMS.
-Messages are queued if Vonage is not configured.
+### Twilio Setup
+Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+Messages are queued if Twilio is not configured.
