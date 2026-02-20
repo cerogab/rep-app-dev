@@ -6,6 +6,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 ## Recent Changes
 - 2026-02-20: Initial build - all screens, contact management, Twilio SMS backend
 - 2026-02-20: Applied Coolors teal accent palette as accents (badges, charts, secondary text)
+- 2026-02-20: Added login screen with email/password auth based on Figma design, auth context with AsyncStorage persistence, logout from Settings
 
 ## User Preferences
 - Dark navy/blue primary color scheme (#0A1628, #1A56DB)
@@ -21,6 +22,8 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Stack**: contact-detail
 
 ### Key Files
+- `lib/auth-context.tsx` - Authentication state with AsyncStorage persistence
+- `app/login.tsx` - Login screen (email/password, Figma-matched design)
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
 - `app/(tabs)/index.tsx` - Contacts list with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
