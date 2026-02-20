@@ -64,7 +64,7 @@ export default function LoginScreen() {
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('@/assets/images/icon.png')}
+              source={require('@/assets/images/bram-logo.jpg')}
               style={styles.logoImage}
               contentFit="contain"
             />
@@ -172,29 +172,28 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoContainer: {
-    width: 140,
-    height: 140,
-    borderRadius: 32,
-    backgroundColor: '#E8F0FE',
+    width: 160,
+    height: 160,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 10,
     overflow: 'hidden',
   },
   logoImage: {
-    width: 140,
-    height: 140,
+    width: 160,
+    height: 160,
   },
   logoShadow: {
-    width: 80,
-    height: 12,
+    width: 90,
+    height: 14,
     borderRadius: 40,
-    backgroundColor: Colors.primary + '15',
-    marginTop: 12,
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    marginTop: 14,
   },
   tagline: {
     fontFamily: 'Inter_400Regular',
