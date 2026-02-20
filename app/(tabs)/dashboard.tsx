@@ -78,7 +78,7 @@ function BarChart({ data }: { data: { label: string; emails: number; calls: numb
                   chartStyles.bar,
                   {
                     height: (item.calls / maxVal) * chartHeight,
-                    backgroundColor: Colors.chipContacted,
+                    backgroundColor: Colors.mutedTealLight,
                   },
                 ]}
               />
@@ -93,7 +93,7 @@ function BarChart({ data }: { data: { label: string; emails: number; calls: numb
           <Text style={chartStyles.legendText}>Emails</Text>
         </View>
         <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: Colors.chipContacted }]} />
+          <View style={[chartStyles.legendDot, { backgroundColor: Colors.mutedTealLight }]} />
           <Text style={chartStyles.legendText}>Calls</Text>
         </View>
       </View>
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   greetingDivider: {
     width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.pearlAqua + '50',
   },
   statsRow: {
     flexDirection: 'row',

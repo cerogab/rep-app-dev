@@ -32,7 +32,7 @@ function ClassicTabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarInactiveTintColor: Colors.greyOlive,
         headerShown: false,
         tabBarStyle: {
           backgroundColor: Colors.white,
