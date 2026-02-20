@@ -9,14 +9,13 @@ import {
   Platform,
   Linking,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { useContacts, Contact, ContactCategory } from '@/lib/contacts-context';
+import { useContacts, Contact } from '@/lib/contacts-context';
 import { ContactCard } from '@/components/ContactCard';
 import { FilterChips } from '@/components/FilterChips';
 
@@ -24,7 +23,7 @@ type FilterOption = 'All' | 'New' | 'Contacted' | 'Qualified';
 
 export default function ReceiverPage() {
   const insets = useSafeAreaInsets();
-  const { contacts, isLoading, deleteContact } = useContacts();
+  const { contacts, isLoading } = useContacts();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterOption>('All');
 
@@ -77,10 +76,17 @@ export default function ReceiverPage() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Contacts</Text>
-        <View style={styles.headerRight}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Receiver page</Text>
           <Text style={styles.countBadge}>{contacts.length}</Text>
         </View>
+        <Pressable
+          style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
+          onPress={handleAddNew}
+          hitSlop={8}
+        >
+          <Ionicons name="add" size={24} color={Colors.white} />
+        </Pressable>
       </View>
 
       <View style={styles.searchContainer}>
@@ -121,22 +127,11 @@ export default function ReceiverPage() {
           data={filteredContacts}
           renderItem={renderContact}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 90 }]}
+          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 20 }]}
           showsVerticalScrollIndicator={false}
           scrollEnabled={filteredContacts.length > 0}
         />
       )}
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.fab,
-          { bottom: insets.bottom + (Platform.OS === 'web' ? 100 : 70) },
-          pressed && styles.fabPressed,
-        ]}
-        onPress={handleAddNew}
-      >
-        <Ionicons name="add" size={28} color={Colors.white} />
-      </Pressable>
     </View>
   );
 }
@@ -154,15 +149,15 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     paddingTop: 8,
   },
-  title: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 32,
-    color: Colors.primary,
-  },
-  headerRight: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
+  },
+  title: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 28,
+    color: Colors.primary,
   },
   countBadge: {
     fontFamily: 'Inter_600SemiBold',
@@ -173,6 +168,23 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  addBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  addBtnPressed: {
+    transform: [{ scale: 0.92 }],
+    opacity: 0.9,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -219,24 +231,5 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  fabPressed: {
-    transform: [{ scale: 0.92 }],
-    opacity: 0.9,
   },
 });

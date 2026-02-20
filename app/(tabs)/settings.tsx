@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
+import { useAuth } from '@/lib/auth-context';
 
 interface MenuRowProps {
   icon: string;
@@ -68,10 +69,25 @@ const menuStyles = StyleSheet.create({
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const { logout, userEmail } = useAuth();
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
   const showAlert = (title: string) => {
     Alert.alert(title, 'This feature will be available in a future update.');
+  };
+
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          await logout();
+        },
+      },
+    ]);
   };
 
   return (
@@ -94,7 +110,7 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>GABRIEL</Text>
-          <Text style={styles.profileEmail}>admin@bramllc.com</Text>
+          <Text style={styles.profileEmail}>{userEmail || 'admin@bramllc.com'}</Text>
         </View>
       </View>
 
@@ -113,7 +129,7 @@ export default function SettingsScreen() {
         <MenuRow
           icon="log-out-outline"
           label="Log Out"
-          onPress={() => showAlert('Log Out')}
+          onPress={handleLogout}
           showDivider={false}
           color={Colors.error}
         />
