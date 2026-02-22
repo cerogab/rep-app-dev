@@ -47,9 +47,11 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
           </View>
           <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>{contact.fullName}</Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
-          <Text style={styles.badgeText}>{contact.category}</Text>
-        </View>
+        {contact.category !== 'Contacted' && (
+          <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
+            <Text style={styles.badgeText}>{contact.category}</Text>
+          </View>
+        )}
       </View>
       <View style={[styles.frequencyRow, { borderTopColor: colors.border }]}>
         <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
