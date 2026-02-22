@@ -9,6 +9,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,10 +49,11 @@ export default function LoginScreen() {
       <View style={[styles.content, { paddingTop: insets.top + webTopInset + 60 }]}>
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
-            <View style={styles.logoIcon}>
-              <Ionicons name="chevron-back" size={48} color={Colors.primary} />
-              <Text style={styles.logoLetters}>Br</Text>
-            </View>
+            <Image
+              source={require('@assets/Bram_logo_-_Edited_1771788123323.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <View style={styles.logoShadow} />
           </View>
 
@@ -158,33 +160,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  logoIcon: {
+  logoImage: {
     width: 120,
     height: 120,
     borderRadius: 28,
-    backgroundColor: '#E8F0FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: -8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  logoLetters: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 36,
-    color: Colors.primaryDark,
-    marginLeft: -4,
   },
   logoShadow: {
     width: 80,
     height: 12,
     borderRadius: 40,
     backgroundColor: Colors.primary,
-    opacity: 0.1,
+    opacity: 0.15,
     marginTop: 12,
   },
   tagline: {

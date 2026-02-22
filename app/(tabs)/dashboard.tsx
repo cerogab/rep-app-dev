@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   greetingDivider: {
     width: 1,
-    backgroundColor: Colors.pearlAqua + '50',
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   statsRow: {
     flexDirection: 'row',
