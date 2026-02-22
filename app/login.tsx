@@ -50,7 +50,7 @@ export default function LoginScreen() {
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('@assets/Bram_logo_-_Edited_1771788123323.png')}
+              source={require('../assets/images/bram-logo.png')}
               style={styles.logoImage}
               resizeMode="contain"
             />
