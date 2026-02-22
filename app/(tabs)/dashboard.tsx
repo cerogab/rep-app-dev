@@ -1,61 +1,21 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
 import { useContacts } from '@/lib/contacts-context';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const MONTHLY_REVENUE = [
+  { label: 'Month 1', revenue: 4.20, discount: 1.80 },
+  { label: 'Month 2', revenue: 5.30, discount: 2.10 },
+  { label: 'Month 3', revenue: 5.50, discount: 1.60 },
+];
 
-function StatCard({ icon, label, value, color }: { icon: string; label: string; value: number; color: string }) {
-  return (
-    <View style={[statStyles.card, { borderLeftColor: color }]}>
-      <View style={[statStyles.iconWrap, { backgroundColor: color + '15' }]}>
-        <Ionicons name={icon as any} size={20} color={color} />
-      </View>
-      <Text style={statStyles.value}>{value}</Text>
-      <Text style={statStyles.label}>{label}</Text>
-    </View>
-  );
-}
+const TOTAL_REVENUE = 15.00;
 
-const statStyles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 16,
-    flex: 1,
-    borderLeftWidth: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  value: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 28,
-    color: Colors.text,
-  },
-  label: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-});
-
-function BarChart({ data }: { data: { label: string; emails: number; calls: number }[] }) {
-  const maxVal = Math.max(...data.flatMap((d) => [d.emails, d.calls]), 1);
+function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
+  const maxVal = Math.max(...data.map((d) => d.revenue + d.discount), 1);
   const chartHeight = 140;
 
   return (
@@ -68,7 +28,7 @@ function BarChart({ data }: { data: { label: string; emails: number; calls: numb
                 style={[
                   chartStyles.bar,
                   {
-                    height: (item.emails / maxVal) * chartHeight,
+                    height: (item.revenue / maxVal) * chartHeight,
                     backgroundColor: Colors.primary,
                   },
                 ]}
@@ -77,8 +37,8 @@ function BarChart({ data }: { data: { label: string; emails: number; calls: numb
                 style={[
                   chartStyles.bar,
                   {
-                    height: (item.calls / maxVal) * chartHeight,
-                    backgroundColor: Colors.mutedTealLight,
+                    height: (item.discount / maxVal) * chartHeight,
+                    backgroundColor: Colors.chipQualified,
                   },
                 ]}
               />
@@ -90,11 +50,11 @@ function BarChart({ data }: { data: { label: string; emails: number; calls: numb
       <View style={chartStyles.legend}>
         <View style={chartStyles.legendItem}>
           <View style={[chartStyles.legendDot, { backgroundColor: Colors.primary }]} />
-          <Text style={chartStyles.legendText}>Emails</Text>
+          <Text style={chartStyles.legendText}>Revenue</Text>
         </View>
         <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: Colors.mutedTealLight }]} />
-          <Text style={chartStyles.legendText}>Calls</Text>
+          <View style={[chartStyles.legendDot, { backgroundColor: Colors.chipQualified }]} />
+          <Text style={chartStyles.legendText}>Discount Saved</Text>
         </View>
       </View>
     </View>
@@ -122,7 +82,7 @@ const chartStyles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   bar: {
-    width: 14,
+    width: 20,
     borderRadius: 4,
     minHeight: 4,
   },
@@ -161,20 +121,12 @@ export default function DashboardScreen() {
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
   const stats = useMemo(() => {
-    const newCount = contacts.filter((c) => c.category === 'New').length;
-    const contactedCount = contacts.filter((c) => c.category === 'Contacted').length;
     const qualifiedCount = contacts.filter((c) => c.category === 'Qualified').length;
-    return { total: contacts.length, newCount, contactedCount, qualifiedCount };
+    const totalCount = contacts.length;
+    const qualifiedRatio = totalCount > 0 ? Math.round((qualifiedCount / totalCount) * 100) : 0;
+    const totalDiscount = MONTHLY_REVENUE.reduce((sum, m) => sum + m.discount, 0);
+    return { total: totalCount, qualifiedCount, qualifiedRatio, totalDiscount };
   }, [contacts]);
-
-  const chartData = [
-    { label: 'Jan', emails: 12, calls: 8 },
-    { label: 'Feb', emails: 18, calls: 14 },
-    { label: 'Mar', emails: 24, calls: 16 },
-    { label: 'Apr', emails: 28, calls: 20 },
-    { label: 'May', emails: 32, calls: 24 },
-    { label: 'Jun', emails: 38, calls: 28 },
-  ];
 
   return (
     <ScrollView
@@ -194,65 +146,118 @@ export default function DashboardScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.greetingCard}
       >
-        <Text style={styles.greetingSmall}>Good Morning</Text>
-        <Text style={styles.greetingName}>GABRIEL</Text>
+        <Text style={styles.greetingSmall}>Total Revenue</Text>
+        <Text style={styles.revenueAmount}>${TOTAL_REVENUE.toFixed(2)}</Text>
+        <Text style={styles.revenuePeriod}>over 3 months</Text>
         <View style={styles.greetingStats}>
-          <View style={styles.greetingStat}>
-            <Text style={styles.greetingStatValue}>{stats.total}</Text>
-            <Text style={styles.greetingStatLabel}>Total</Text>
-          </View>
-          <View style={styles.greetingDivider} />
-          <View style={styles.greetingStat}>
-            <Text style={styles.greetingStatValue}>{stats.newCount}</Text>
-            <Text style={styles.greetingStatLabel}>New</Text>
-          </View>
-          <View style={styles.greetingDivider} />
           <View style={styles.greetingStat}>
             <Text style={styles.greetingStatValue}>{stats.qualifiedCount}</Text>
             <Text style={styles.greetingStatLabel}>Qualified</Text>
+          </View>
+          <View style={styles.greetingDivider} />
+          <View style={styles.greetingStat}>
+            <Text style={styles.greetingStatValue}>{stats.qualifiedRatio}%</Text>
+            <Text style={styles.greetingStatLabel}>Ratio</Text>
+          </View>
+          <View style={styles.greetingDivider} />
+          <View style={styles.greetingStat}>
+            <Text style={styles.greetingStatValue}>${stats.totalDiscount.toFixed(2)}</Text>
+            <Text style={styles.greetingStatLabel}>Saved</Text>
           </View>
         </View>
       </LinearGradient>
 
       <View style={styles.statsRow}>
-        <StatCard icon="people" label="New Leads" value={stats.newCount} color={Colors.chipNew} />
-        <StatCard icon="chatbubbles" label="Contacted" value={stats.contactedCount} color={Colors.chipContacted} />
-        <StatCard icon="checkmark-circle" label="Qualified" value={stats.qualifiedCount} color={Colors.chipQualified} />
+        <View style={[statStyles.card, { borderLeftColor: Colors.chipQualified }]}>
+          <View style={[statStyles.iconWrap, { backgroundColor: Colors.chipQualified + '15' }]}>
+            <Ionicons name="checkmark-circle" size={20} color={Colors.chipQualified} />
+          </View>
+          <Text style={statStyles.value}>{stats.qualifiedCount}</Text>
+          <Text style={statStyles.label}>Qualified</Text>
+        </View>
+        <View style={[statStyles.card, { borderLeftColor: Colors.primary }]}>
+          <View style={[statStyles.iconWrap, { backgroundColor: Colors.primary + '15' }]}>
+            <Ionicons name="pricetag" size={20} color={Colors.primary} />
+          </View>
+          <Text style={statStyles.value}>${stats.totalDiscount.toFixed(2)}</Text>
+          <Text style={statStyles.label}>Discount Saved</Text>
+        </View>
       </View>
 
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Outreach Performance</Text>
-        <Text style={styles.chartSubtitle}>Emails & calls over time</Text>
-        <BarChart data={chartData} />
+        <Text style={styles.chartTitle}>Revenue Analytics</Text>
+        <Text style={styles.chartSubtitle}>Qualified revenue & discount ratio over 3 months</Text>
+        <RevenueBarChart data={MONTHLY_REVENUE} />
       </View>
 
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Trends</Text>
-        <Text style={styles.chartSubtitle}>Monthly growth by category</Text>
-        <View style={styles.trendRow}>
-          <View style={styles.trendItem}>
-            <View style={[styles.trendBar, { height: 60, backgroundColor: Colors.chipNew + '30' }]}>
-              <View style={[styles.trendBarFill, { height: 40, backgroundColor: Colors.chipNew }]} />
-            </View>
-            <Text style={styles.trendLabel}>New</Text>
+        <Text style={styles.chartTitle}>Qualified / Discount Ratio</Text>
+        <Text style={styles.chartSubtitle}>Breakdown per month</Text>
+        <View style={styles.ratioTable}>
+          <View style={styles.ratioHeaderRow}>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.2 }]}>Month</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Revenue</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Discount</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Ratio</Text>
           </View>
-          <View style={styles.trendItem}>
-            <View style={[styles.trendBar, { height: 80, backgroundColor: Colors.chipContacted + '30' }]}>
-              <View style={[styles.trendBarFill, { height: 55, backgroundColor: Colors.chipContacted }]} />
-            </View>
-            <Text style={styles.trendLabel}>Contacted</Text>
-          </View>
-          <View style={styles.trendItem}>
-            <View style={[styles.trendBar, { height: 100, backgroundColor: Colors.chipQualified + '30' }]}>
-              <View style={[styles.trendBarFill, { height: 70, backgroundColor: Colors.chipQualified }]} />
-            </View>
-            <Text style={styles.trendLabel}>Qualified</Text>
+          {MONTHLY_REVENUE.map((item) => {
+            const ratio = item.revenue > 0 ? ((item.discount / item.revenue) * 100).toFixed(0) : '0';
+            return (
+              <View key={item.label} style={styles.ratioRow}>
+                <Text style={[styles.ratioCell, { flex: 1.2 }]}>{item.label}</Text>
+                <Text style={styles.ratioCell}>${item.revenue.toFixed(2)}</Text>
+                <Text style={[styles.ratioCell, { color: Colors.chipQualified }]}>${item.discount.toFixed(2)}</Text>
+                <Text style={[styles.ratioCell, { color: Colors.primary, fontFamily: 'Inter_600SemiBold' }]}>{ratio}%</Text>
+              </View>
+            );
+          })}
+          <View style={styles.ratioTotalRow}>
+            <Text style={[styles.ratioCellTotal, { flex: 1.2 }]}>Total</Text>
+            <Text style={styles.ratioCellTotal}>${TOTAL_REVENUE.toFixed(2)}</Text>
+            <Text style={[styles.ratioCellTotal, { color: Colors.chipQualified }]}>${stats.totalDiscount.toFixed(2)}</Text>
+            <Text style={[styles.ratioCellTotal, { color: Colors.primary }]}>
+              {TOTAL_REVENUE > 0 ? ((stats.totalDiscount / TOTAL_REVENUE) * 100).toFixed(0) : 0}%
+            </Text>
           </View>
         </View>
       </View>
     </ScrollView>
   );
 }
+
+const statStyles = StyleSheet.create({
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,
+    flex: 1,
+    borderLeftWidth: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  iconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  value: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 24,
+    color: Colors.text,
+  },
+  label: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -273,11 +278,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.7)',
   },
-  greetingName: {
+  revenueAmount: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 28,
+    fontSize: 36,
     color: Colors.white,
     marginTop: 4,
+  },
+  revenuePeriod: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    marginTop: 2,
   },
   greetingStats: {
     flexDirection: 'row',
@@ -290,7 +301,7 @@ const styles = StyleSheet.create({
   },
   greetingStatValue: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 24,
+    fontSize: 20,
     color: Colors.white,
   },
   greetingStatLabel: {
@@ -328,30 +339,48 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 2,
   },
-  trendRow: {
+  ratioTable: {
+    marginTop: 16,
+    gap: 0,
+  },
+  ratioHeaderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    paddingTop: 20,
-    paddingBottom: 4,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
-  trendItem: {
-    alignItems: 'center',
-    gap: 8,
+  ratioRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.border,
   },
-  trendBar: {
-    width: 40,
-    borderRadius: 8,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
+  ratioTotalRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.text,
+    marginTop: 2,
   },
-  trendBarFill: {
-    width: '100%' as any,
-    borderRadius: 8,
+  ratioCell: {
+    flex: 1,
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: Colors.text,
+    textAlign: 'center',
   },
-  trendLabel: {
-    fontFamily: 'Inter_500Medium',
+  ratioCellHeader: {
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
     color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  ratioCellTotal: {
+    flex: 1,
+    fontFamily: 'Inter_700Bold',
+    fontSize: 14,
+    color: Colors.text,
+    textAlign: 'center',
   },
 });
