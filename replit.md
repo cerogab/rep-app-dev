@@ -10,10 +10,11 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-02-20: Renamed "Contacts" tab to "Receiver page", moved + button to header next to title
 - 2026-02-22: Replaced contact card call/email buttons with message frequency scroller chips
 - 2026-02-22: Revised logo and theme colors to warm orange/red palette matching new Bram logo
+- 2026-02-22: Added theme system with Orange and Blue Orange themes, Appearance page, dynamic theming across all screens
 
 ## User Preferences
-- Warm orange/red color scheme matching Bram logo (#E8762D primary, #2D1408 dark)
-- Warm accent palette for badges, charts, secondary text
+- Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
+- Theme selection persisted in AsyncStorage under '@bram_theme' key
 - Inter font family throughout
 - Manual Twilio API key setup (not connector OAuth)
 
@@ -27,32 +28,32 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Auth Screen**: login.tsx (rendered directly by AuthGate, not via router)
 
 ### Key Files
+- `lib/theme-context.tsx` - Theme system with Orange & Blue Orange palettes, useColors() hook, AsyncStorage persistence
 - `lib/auth-context.tsx` - Authentication state management with AsyncStorage
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
 - `app/login.tsx` - Login screen (Figma design: logo, tagline, email/password, Face ID)
 - `app/(tabs)/index.tsx` - Receiver page (formerly Contacts) with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
-- `app/(tabs)/settings.tsx` - User profile & settings
+- `app/(tabs)/settings.tsx` - User profile & settings with Appearance navigation
+- `app/appearance.tsx` - Theme selection screen with toggle switches
 - `app/add-contact.tsx` - Add new contact modal
 - `app/contact-detail.tsx` - Contact detail view with notes editing
 - `app/send-message.tsx` - SMS message composer with templates
 - `server/routes.ts` - Twilio SMS API endpoint
-- `constants/colors.ts` - Color system
+- `constants/colors.ts` - Static color definitions (legacy, all screens now use useColors() from theme-context)
 
-### Color Scheme
-- Primary: #E8762D (warm orange) - headers, buttons, tab active, main CTA
-- Primary Dark: #2D1408 (deep brown) - gradient backgrounds
-- Accent: #D04525 (red-orange) - error states, destructive actions
-- Background: #FDF6F0 (warm off-white)
-- Warm Accent Palette:
-  - Text Secondary #8B6F55 - secondary text
-  - Text Tertiary #A69279 - tertiary text, tab inactive
-  - Contacted #D4956A - warm tan badge
-  - Chart Bars #E8B87A - warm gold
-  - Qualified #E8A84C - amber badge, success states
-  - Highlight #F0C060 - warm gold highlights
-  - Soft Glow #F5D080 - accent glow
-- Categories: New (orange #E8762D), Contacted (warm tan #D4956A), Qualified (amber #E8A84C), Unknown (warm grey #A69279)
+### Theming System
+All screens use `useColors()` hook from `lib/theme-context.tsx` for dynamic colors. Two themes available:
+
+**Orange Theme (default):**
+- Primary: #E8762D, Primary Dark: #2D1408, Background: #FDF6F0
+- Categories: New #E8762D, Contacted #D4956A, Qualified #E8A84C, Unknown #A69279
+
+**Blue Orange Theme:**
+- Primary: #00068E (navy), Primary Dark: #000347, Background: #F0F4FA
+- Accent blue: #66AAE3, Golden highlight: #E49716
+- Categories: New #00068E, Contacted #66AAE3, Qualified #E49716, Unknown #8B9DC3
+
 - Logo: assets/images/bram-logo.png (warm orange with circle motif)
 
 ### Twilio Setup
