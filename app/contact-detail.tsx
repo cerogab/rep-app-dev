@@ -13,20 +13,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { useContacts, ContactCategory } from '@/lib/contacts-context';
 import { FrequencySelector } from '@/components/FrequencySelector';
 import { MessageFrequency } from '@/lib/contacts-context';
 
-const categoryColors: Record<ContactCategory, string> = {
-  New: Colors.chipNew,
-  Contacted: Colors.chipContacted,
-  Qualified: Colors.chipQualified,
-  Unknown: Colors.chipUnknown,
-};
-
 export default function ContactDetailScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { contacts, updateContact, deleteContact } = useContacts();
   const contact = useMemo(() => contacts.find((c) => c.id === id), [contacts, id]);
@@ -35,12 +29,19 @@ export default function ContactDetailScreen() {
   const [editingName, setEditingName] = useState(false);
   const [nameText, setNameText] = useState(contact?.fullName || '');
 
+  const categoryColors: Record<ContactCategory, string> = {
+    New: colors.chipNew,
+    Contacted: colors.chipContacted,
+    Qualified: colors.chipQualified,
+    Unknown: colors.chipUnknown,
+  };
+
   if (!contact) {
     return (
-      <View style={[styles.container, styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.errorText}>Contact not found</Text>
+      <View style={[styles.container, styles.centered, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <Text style={[styles.errorText, { color: colors.text }]}>Contact not found</Text>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.backLink}>Go Back</Text>
+          <Text style={[styles.backLink, { color: colors.primary }]}>Go Back</Text>
         </Pressable>
       </View>
     );
@@ -84,13 +85,13 @@ export default function ContactDetailScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 8) }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={Colors.primary} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 8), backgroundColor: colors.background }]}>
+        <Pressable onPress={() => router.back()} hitSlop={12} style={[styles.backBtn, { backgroundColor: colors.white }]}>
+          <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </Pressable>
         <Pressable onPress={handleDelete} hitSlop={12}>
-          <Ionicons name="trash-outline" size={22} color={Colors.error} />
+          <Ionicons name="trash-outline" size={22} color={colors.error} />
         </Pressable>
       </View>
 
@@ -107,7 +108,7 @@ export default function ContactDetailScreen() {
           {editingName ? (
             <View style={styles.nameEditRow}>
               <TextInput
-                style={styles.nameInput}
+                style={[styles.nameInput, { color: colors.text, borderBottomColor: colors.primary }]}
                 value={nameText}
                 onChangeText={setNameText}
                 autoFocus
@@ -116,7 +117,7 @@ export default function ContactDetailScreen() {
                 onSubmitEditing={handleSaveName}
               />
               <Pressable onPress={handleSaveName} hitSlop={8}>
-                <Ionicons name="checkmark-circle" size={28} color={Colors.primary} />
+                <Ionicons name="checkmark-circle" size={28} color={colors.primary} />
               </Pressable>
             </View>
           ) : (
@@ -127,8 +128,8 @@ export default function ContactDetailScreen() {
               }}
               style={styles.nameRow}
             >
-              <Text style={styles.name}>{contact.fullName}</Text>
-              <Ionicons name="create-outline" size={18} color={Colors.textTertiary} />
+              <Text style={[styles.name, { color: colors.text }]}>{contact.fullName}</Text>
+              <Ionicons name="create-outline" size={18} color={colors.textTertiary} />
             </Pressable>
           )}
           <View style={[styles.categoryBadge, { backgroundColor: categoryColors[contact.category] }]}>
@@ -136,14 +137,14 @@ export default function ContactDetailScreen() {
           </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Message Frequency</Text>
+        <View style={[styles.card, { backgroundColor: colors.white }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Message Frequency</Text>
           <FrequencySelector selected={contact.frequency} onSelect={handleFrequencyChange} />
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.white }]}>
           <View style={styles.notesHeader}>
-            <Text style={styles.sectionTitle}>Notes</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Notes</Text>
             <Pressable
               onPress={() => {
                 if (editingNotes) {
@@ -158,23 +159,23 @@ export default function ContactDetailScreen() {
               <Ionicons
                 name={editingNotes ? 'checkmark' : 'create-outline'}
                 size={22}
-                color={Colors.primary}
+                color={colors.primary}
               />
             </Pressable>
           </View>
           {editingNotes ? (
             <TextInput
-              style={styles.notesInput}
+              style={[styles.notesInput, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
               value={notesText}
               onChangeText={setNotesText}
               placeholder="Add notes..."
-              placeholderTextColor={Colors.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               multiline
               autoFocus
               textAlignVertical="top"
             />
           ) : (
-            <Text style={styles.notesText}>
+            <Text style={[styles.notesText, { color: colors.textSecondary }]}>
               {contact.notes || 'No notes yet. Tap the edit icon to add notes.'}
             </Text>
           )}
@@ -187,7 +188,6 @@ export default function ContactDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   centered: {
     alignItems: 'center',
@@ -196,12 +196,10 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 18,
-    color: Colors.text,
   },
   backLink: {
     fontFamily: 'Inter_500Medium',
     fontSize: 16,
-    color: Colors.primary,
     marginTop: 12,
   },
   header: {
@@ -210,13 +208,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 8,
-    backgroundColor: Colors.background,
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -249,7 +245,6 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: 'Inter_700Bold',
     fontSize: 24,
-    color: Colors.text,
   },
   nameEditRow: {
     flexDirection: 'row',
@@ -262,9 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Inter_700Bold',
     fontSize: 22,
-    color: Colors.text,
     borderBottomWidth: 2,
-    borderBottomColor: Colors.primary,
     paddingVertical: 6,
     textAlign: 'center',
   },
@@ -277,10 +270,9 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 13,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
   card: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 18,
     gap: 12,
@@ -293,7 +285,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.text,
   },
   notesHeader: {
     flexDirection: 'row',
@@ -303,18 +294,14 @@ const styles = StyleSheet.create({
   notesInput: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.text,
-    backgroundColor: Colors.inputBg,
     borderRadius: 12,
     padding: 14,
     minHeight: 100,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   notesText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
-    color: Colors.textSecondary,
     lineHeight: 22,
   },
 });

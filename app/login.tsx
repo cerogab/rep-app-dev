@@ -14,11 +14,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { useAuth } from '@/lib/auth-context';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +44,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.white }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={[styles.content, { paddingTop: insets.top + webTopInset + 60 }]}>
@@ -54,21 +55,21 @@ export default function LoginScreen() {
               style={styles.logoImage}
               resizeMode="contain"
             />
-            <View style={styles.logoShadow} />
+            <View style={[styles.logoShadow, { backgroundColor: colors.primary }]} />
           </View>
 
-          <Text style={styles.tagline}>
+          <Text style={[styles.tagline, { color: colors.text }]}>
             secure marketing{'\n'}intelligently.
           </Text>
         </View>
 
         <View style={styles.formSection}>
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Email</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.white }]}
               placeholder="admin@bram.com"
-              placeholderTextColor={Colors.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -79,12 +80,12 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Password</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Password</Text>
+            <View style={[styles.passwordContainer, { borderColor: colors.border, backgroundColor: colors.white }]}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, { color: colors.text }]}
                 placeholder="Enter password"
-                placeholderTextColor={Colors.textTertiary}
+                placeholderTextColor={colors.textTertiary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -98,7 +99,7 @@ export default function LoginScreen() {
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   size={20}
-                  color={Colors.textTertiary}
+                  color={colors.textTertiary}
                 />
               </Pressable>
             </View>
@@ -107,6 +108,7 @@ export default function LoginScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.signInButton,
+              { backgroundColor: colors.primary, shadowColor: colors.primary },
               (!canSubmit || loading) && styles.signInButtonDisabled,
               pressed && canSubmit && styles.signInButtonPressed,
             ]}
@@ -115,27 +117,27 @@ export default function LoginScreen() {
             testID="login-submit"
           >
             {loading ? (
-              <ActivityIndicator size="small" color={Colors.white} />
+              <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
               <Text style={styles.signInButtonText}>Sign In</Text>
             )}
           </Pressable>
 
           <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or</Text>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
           <View style={styles.faceIdSection}>
             <View style={styles.faceIdIcon}>
-              <View style={styles.faceIdCornerTL} />
-              <View style={styles.faceIdCornerTR} />
-              <View style={styles.faceIdCornerBL} />
-              <View style={styles.faceIdCornerBR} />
-              <Ionicons name="scan-outline" size={32} color={Colors.primary} />
+              <View style={[styles.faceIdCornerTL, { borderColor: colors.primary }]} />
+              <View style={[styles.faceIdCornerTR, { borderColor: colors.primary }]} />
+              <View style={[styles.faceIdCornerBL, { borderColor: colors.primary }]} />
+              <View style={[styles.faceIdCornerBR, { borderColor: colors.primary }]} />
+              <Ionicons name="scan-outline" size={32} color={colors.primary} />
             </View>
-            <Text style={styles.faceIdText}>Face ID</Text>
+            <Text style={[styles.faceIdText, { color: colors.primary }]}>Face ID</Text>
           </View>
         </View>
       </View>
@@ -146,7 +148,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
   content: {
     flex: 1,
@@ -169,14 +170,12 @@ const styles = StyleSheet.create({
     width: 80,
     height: 12,
     borderRadius: 40,
-    backgroundColor: Colors.primary,
     opacity: 0.15,
     marginTop: 12,
   },
   tagline: {
     fontFamily: 'Inter_400Regular',
     fontSize: 24,
-    color: Colors.text,
     textAlign: 'center',
     lineHeight: 34,
   },
@@ -189,32 +188,25 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: 'Inter_500Medium',
     fontSize: 14,
-    color: Colors.text,
   },
   input: {
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.text,
     borderWidth: 1,
-    borderColor: Colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: Colors.white,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
     borderRadius: 12,
-    backgroundColor: Colors.white,
   },
   passwordInput: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.text,
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
@@ -223,13 +215,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   signInButton: {
-    backgroundColor: Colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -244,7 +234,7 @@ const styles = StyleSheet.create({
   signInButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 17,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
   dividerRow: {
     flexDirection: 'row',
@@ -255,12 +245,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border,
   },
   dividerText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textTertiary,
   },
   faceIdSection: {
     alignItems: 'center',
@@ -281,7 +269,6 @@ const styles = StyleSheet.create({
     height: 12,
     borderTopWidth: 2,
     borderLeftWidth: 2,
-    borderColor: Colors.primary,
     borderTopLeftRadius: 4,
   },
   faceIdCornerTR: {
@@ -292,7 +279,6 @@ const styles = StyleSheet.create({
     height: 12,
     borderTopWidth: 2,
     borderRightWidth: 2,
-    borderColor: Colors.primary,
     borderTopRightRadius: 4,
   },
   faceIdCornerBL: {
@@ -303,7 +289,6 @@ const styles = StyleSheet.create({
     height: 12,
     borderBottomWidth: 2,
     borderLeftWidth: 2,
-    borderColor: Colors.primary,
     borderBottomLeftRadius: 4,
   },
   faceIdCornerBR: {
@@ -314,12 +299,10 @@ const styles = StyleSheet.create({
     height: 12,
     borderBottomWidth: 2,
     borderRightWidth: 2,
-    borderColor: Colors.primary,
     borderBottomRightRadius: 4,
   },
   faceIdText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: Colors.primary,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { MessageFrequency } from '@/lib/contacts-context';
 
 const frequencies: MessageFrequency[] = ['Weekly', 'Biweekly', 'Monthly'];
@@ -12,20 +12,29 @@ interface FrequencySelectorProps {
 }
 
 export function FrequencySelector({ selected, onSelect }: FrequencySelectorProps) {
+  const colors = useColors();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.inputBg }]}>
       {frequencies.map((freq) => {
         const isSelected = selected === freq;
         return (
           <Pressable
             key={freq}
-            style={[styles.option, isSelected && styles.optionSelected]}
+            style={[
+              styles.option,
+              isSelected && { backgroundColor: colors.primary, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+            ]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               onSelect(freq);
             }}
           >
-            <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>
+            <Text style={[
+              styles.optionText,
+              { color: colors.textSecondary },
+              isSelected && { color: colors.white, fontFamily: 'Inter_600SemiBold' },
+            ]}>
               {freq}
             </Text>
           </Pressable>
@@ -38,7 +47,6 @@ export function FrequencySelector({ selected, onSelect }: FrequencySelectorProps
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.inputBg,
     borderRadius: 12,
     padding: 3,
   },
@@ -48,21 +56,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
   },
-  optionSelected: {
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
   optionText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 14,
-    color: Colors.textSecondary,
-  },
-  optionTextSelected: {
-    color: Colors.white,
-    fontFamily: 'Inter_600SemiBold',
   },
 });

@@ -14,13 +14,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { useContacts, ContactCategory, MessageFrequency } from '@/lib/contacts-context';
 import { CategoryChips } from '@/components/CategoryChips';
 import { FrequencySelector } from '@/components/FrequencySelector';
 
 export default function AddContactScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { addContact } = useContacts();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -63,21 +64,21 @@ export default function AddContactScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.white }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 12) }]}>
         <Pressable onPress={handleCancel} hitSlop={12}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={[styles.cancelText, { color: colors.accent }]}>Cancel</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>New Client</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>New Client</Text>
         <Pressable onPress={handleSave} disabled={!canSave || saving} hitSlop={12}>
-          <Text style={[styles.saveText, (!canSave || saving) && styles.saveDisabled]}>Save</Text>
+          <Text style={[styles.saveText, { color: colors.accent }, (!canSave || saving) && styles.saveDisabled]}>Save</Text>
         </Pressable>
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <ScrollView
         style={styles.form}
@@ -86,11 +87,11 @@ export default function AddContactScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Full Name</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Full Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter full name"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={fullName}
             onChangeText={setFullName}
             autoCapitalize="words"
@@ -99,11 +100,11 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Email</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter email address"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -112,11 +113,11 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Phone</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Phone</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter phone number"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -124,32 +125,32 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Company</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Company</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter company name"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={company}
             onChangeText={setCompany}
           />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Category</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Category</Text>
           <CategoryChips selected={category} onSelect={setCategory} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Message Frequency</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Message Frequency</Text>
           <FrequencySelector selected={frequency} onSelect={setFrequency} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Notes</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Notes</Text>
           <TextInput
-            style={[styles.input, styles.notesInput]}
+            style={[styles.input, styles.notesInput, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Add notes..."
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -165,7 +166,6 @@ export default function AddContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
   header: {
     flexDirection: 'row',
@@ -177,24 +177,20 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 17,
-    color: Colors.accent,
   },
   headerTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 17,
-    color: Colors.text,
   },
   saveText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 17,
-    color: Colors.accent,
   },
   saveDisabled: {
     opacity: 0.4,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border,
   },
   form: {
     flex: 1,
@@ -209,20 +205,16 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 14,
-    color: Colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   input: {
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.text,
-    backgroundColor: Colors.inputBg,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   notesInput: {
     height: 120,

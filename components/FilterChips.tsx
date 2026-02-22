@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 
 type FilterOption = 'All' | 'New' | 'Qualified';
 
@@ -13,6 +13,8 @@ interface FilterChipsProps {
 const filters: FilterOption[] = ['All', 'New', 'Qualified'];
 
 export function FilterChips({ selected, onSelect }: FilterChipsProps) {
+  const colors = useColors();
+
   const handleSelect = (filter: FilterOption) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSelect(filter);
@@ -29,10 +31,18 @@ export function FilterChips({ selected, onSelect }: FilterChipsProps) {
         return (
           <Pressable
             key={filter}
-            style={[styles.chip, isSelected && styles.chipSelected]}
+            style={[
+              styles.chip,
+              { backgroundColor: colors.white, borderColor: colors.border },
+              isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+            ]}
             onPress={() => handleSelect(filter)}
           >
-            <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+            <Text style={[
+              styles.chipText,
+              { color: colors.text },
+              isSelected && { color: colors.white },
+            ]}>
               {filter}
             </Text>
           </Pressable>
@@ -52,20 +62,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  chipSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   chipText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 14,
-    color: Colors.text,
-  },
-  chipTextSelected: {
-    color: Colors.white,
   },
 });

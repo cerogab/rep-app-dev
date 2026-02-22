@@ -1,17 +1,10 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { ContactCategory } from '@/lib/contacts-context';
 
 const categories: ContactCategory[] = ['New', 'Contacted', 'Qualified', 'Unknown'];
-
-const categoryColors: Record<ContactCategory, string> = {
-  New: Colors.chipNew,
-  Contacted: Colors.chipContacted,
-  Qualified: Colors.chipQualified,
-  Unknown: Colors.chipUnknown,
-};
 
 interface CategoryChipsProps {
   selected: ContactCategory;
@@ -19,6 +12,15 @@ interface CategoryChipsProps {
 }
 
 export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
+  const colors = useColors();
+
+  const categoryColors: Record<ContactCategory, string> = {
+    New: colors.chipNew,
+    Contacted: colors.chipContacted,
+    Qualified: colors.chipQualified,
+    Unknown: colors.chipUnknown,
+  };
+
   return (
     <View style={styles.container}>
       {categories.map((cat) => {
@@ -40,7 +42,7 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
             <Text
               style={[
                 styles.chipText,
-                { color: isSelected ? Colors.white : color },
+                { color: isSelected ? '#FFFFFF' : color },
               ]}
             >
               {cat}

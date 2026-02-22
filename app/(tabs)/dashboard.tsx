@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Colors from '@/constants/colors';
+import { useColors, ThemeColors } from '@/lib/theme-context';
 import { useContacts } from '@/lib/contacts-context';
 
 const MONTHLY_REVENUE = [
@@ -14,7 +14,7 @@ const MONTHLY_REVENUE = [
 
 const TOTAL_REVENUE = 15.00;
 
-function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
+function RevenueBarChart({ data, colors }: { data: typeof MONTHLY_REVENUE; colors: ThemeColors }) {
   const maxVal = Math.max(...data.map((d) => d.outreach), 1);
   const chartHeight = 140;
 
@@ -29,7 +29,7 @@ function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
                   chartStyles.bar,
                   {
                     height: (item.outreach / maxVal) * chartHeight,
-                    backgroundColor: Colors.primary,
+                    backgroundColor: colors.primary,
                   },
                 ]}
               />
@@ -38,23 +38,23 @@ function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
                   chartStyles.bar,
                   {
                     height: (item.discountPct / 25) * chartHeight,
-                    backgroundColor: Colors.chipQualified,
+                    backgroundColor: colors.chipQualified,
                   },
                 ]}
               />
             </View>
-            <Text style={chartStyles.barLabel}>{item.label.slice(0, 3)}</Text>
+            <Text style={[chartStyles.barLabel, { color: colors.textSecondary }]}>{item.label.slice(0, 3)}</Text>
           </View>
         ))}
       </View>
       <View style={chartStyles.legend}>
         <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: Colors.primary }]} />
-          <Text style={chartStyles.legendText}>Total Outreach</Text>
+          <View style={[chartStyles.legendDot, { backgroundColor: colors.primary }]} />
+          <Text style={[chartStyles.legendText, { color: colors.textSecondary }]}>Total Outreach</Text>
         </View>
         <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: Colors.chipQualified }]} />
-          <Text style={chartStyles.legendText}>Discount %</Text>
+          <View style={[chartStyles.legendDot, { backgroundColor: colors.chipQualified }]} />
+          <Text style={[chartStyles.legendText, { color: colors.textSecondary }]}>Discount %</Text>
         </View>
       </View>
     </View>
@@ -89,7 +89,6 @@ const chartStyles = StyleSheet.create({
   barLabel: {
     fontFamily: 'Inter_400Regular',
     fontSize: 11,
-    color: Colors.textSecondary,
     marginTop: 6,
   },
   legend: {
@@ -111,12 +110,12 @@ const chartStyles = StyleSheet.create({
   legendText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 12,
-    color: Colors.textSecondary,
   },
 });
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { contacts } = useContacts();
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
@@ -131,7 +130,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.content,
         {
@@ -142,7 +141,7 @@ export default function DashboardScreen() {
       showsVerticalScrollIndicator={false}
     >
       <LinearGradient
-        colors={[Colors.primaryDark, Colors.primary]}
+        colors={[colors.primaryDark, colors.primary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.greetingCard}
@@ -164,53 +163,53 @@ export default function DashboardScreen() {
       </LinearGradient>
 
       <View style={styles.statsRow}>
-        <View style={[statStyles.card, { borderLeftColor: Colors.chipQualified }]}>
-          <View style={[statStyles.iconWrap, { backgroundColor: Colors.chipQualified + '15' }]}>
-            <Ionicons name="checkmark-circle" size={20} color={Colors.chipQualified} />
+        <View style={[styles.statCard, { backgroundColor: colors.white, borderLeftColor: colors.chipQualified }]}>
+          <View style={[styles.statIconWrap, { backgroundColor: colors.chipQualified + '15' }]}>
+            <Ionicons name="checkmark-circle" size={20} color={colors.chipQualified} />
           </View>
-          <Text style={statStyles.value}>{stats.qualifiedCount}</Text>
-          <Text style={statStyles.label}>Qualified</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{stats.qualifiedCount}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Qualified</Text>
         </View>
-        <View style={[statStyles.card, { borderLeftColor: Colors.primary }]}>
-          <View style={[statStyles.iconWrap, { backgroundColor: Colors.primary + '15' }]}>
-            <Ionicons name="megaphone" size={20} color={Colors.primary} />
+        <View style={[styles.statCard, { backgroundColor: colors.white, borderLeftColor: colors.primary }]}>
+          <View style={[styles.statIconWrap, { backgroundColor: colors.primary + '15' }]}>
+            <Ionicons name="megaphone" size={20} color={colors.primary} />
           </View>
-          <Text style={statStyles.value}>{stats.totalOutreach}</Text>
-          <Text style={statStyles.label}>Total Outreach</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalOutreach}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Outreach</Text>
         </View>
       </View>
 
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Revenue Analytics</Text>
-        <Text style={styles.chartSubtitle}>Qualified revenue & discount ratio over 3 months</Text>
-        <RevenueBarChart data={MONTHLY_REVENUE} />
+      <View style={[styles.chartCard, { backgroundColor: colors.white }]}>
+        <Text style={[styles.chartTitle, { color: colors.text }]}>Revenue Analytics</Text>
+        <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>Qualified revenue & discount ratio over 3 months</Text>
+        <RevenueBarChart data={MONTHLY_REVENUE} colors={colors} />
       </View>
 
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Qualified / Discount Received</Text>
-        <Text style={styles.chartSubtitle}>Breakdown per month</Text>
+      <View style={[styles.chartCard, { backgroundColor: colors.white }]}>
+        <Text style={[styles.chartTitle, { color: colors.text }]}>Qualified / Discount Received</Text>
+        <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>Breakdown per month</Text>
         <View style={styles.ratioTable}>
-          <View style={styles.ratioHeaderRow}>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.4 }]}>Month</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Discount %</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Value</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Outreach</Text>
+          <View style={[styles.ratioHeaderRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.4, color: colors.textSecondary }]}>Month</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Discount %</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Value</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Outreach</Text>
           </View>
           {MONTHLY_REVENUE.map((item) => (
-            <View key={item.label} style={styles.ratioRow}>
-              <Text style={[styles.ratioCell, { flex: 1.4 }]}>{item.label}</Text>
-              <Text style={[styles.ratioCell, { color: Colors.chipQualified }]}>{item.discountPct}%</Text>
-              <Text style={[styles.ratioCell, { color: Colors.primary, fontFamily: 'Inter_600SemiBold' }]}>${item.value.toFixed(2)}</Text>
-              <Text style={styles.ratioCell}>{item.outreach}</Text>
+            <View key={item.label} style={[styles.ratioRow, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.ratioCell, { flex: 1.4, color: colors.text }]}>{item.label}</Text>
+              <Text style={[styles.ratioCell, { color: colors.chipQualified }]}>{item.discountPct}%</Text>
+              <Text style={[styles.ratioCell, { color: colors.primary, fontFamily: 'Inter_600SemiBold' }]}>${item.value.toFixed(2)}</Text>
+              <Text style={[styles.ratioCell, { color: colors.text }]}>{item.outreach}</Text>
             </View>
           ))}
-          <View style={styles.ratioTotalRow}>
-            <Text style={[styles.ratioCellTotal, { flex: 1.4 }]}>Total</Text>
-            <Text style={[styles.ratioCellTotal, { color: Colors.chipQualified }]}>
+          <View style={[styles.ratioTotalRow, { borderTopColor: colors.text }]}>
+            <Text style={[styles.ratioCellTotal, { flex: 1.4, color: colors.text }]}>Total</Text>
+            <Text style={[styles.ratioCellTotal, { color: colors.chipQualified }]}>
               {Math.round(MONTHLY_REVENUE.reduce((s, m) => s + m.discountPct, 0) / MONTHLY_REVENUE.length)}%
             </Text>
-            <Text style={[styles.ratioCellTotal, { color: Colors.primary }]}>${stats.totalDiscount.toFixed(2)}</Text>
-            <Text style={styles.ratioCellTotal}>{stats.totalOutreach}</Text>
+            <Text style={[styles.ratioCellTotal, { color: colors.primary }]}>${stats.totalDiscount.toFixed(2)}</Text>
+            <Text style={[styles.ratioCellTotal, { color: colors.text }]}>{stats.totalOutreach}</Text>
           </View>
         </View>
       </View>
@@ -218,45 +217,7 @@ export default function DashboardScreen() {
   );
 }
 
-const statStyles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 16,
-    flex: 1,
-    borderLeftWidth: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  value: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 24,
-    color: Colors.text,
-  },
-  label: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-});
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   content: {
     paddingHorizontal: 16,
     gap: 16,
@@ -274,7 +235,7 @@ const styles = StyleSheet.create({
   revenueAmount: {
     fontFamily: 'Inter_700Bold',
     fontSize: 36,
-    color: Colors.white,
+    color: '#FFFFFF',
     marginTop: 4,
   },
   revenuePeriod: {
@@ -295,7 +256,7 @@ const styles = StyleSheet.create({
   greetingStatValue: {
     fontFamily: 'Inter_700Bold',
     fontSize: 20,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
   greetingStatLabel: {
     fontFamily: 'Inter_400Regular',
@@ -311,8 +272,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
+  statCard: {
+    borderRadius: 16,
+    padding: 16,
+    flex: 1,
+    borderLeftWidth: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  statIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  statValue: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 24,
+  },
+  statLabel: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    marginTop: 2,
+  },
   chartCard: {
-    backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
@@ -324,12 +312,10 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
-    color: Colors.text,
   },
   chartSubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
     marginTop: 2,
   },
   ratioTable: {
@@ -340,32 +326,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   ratioRow: {
     flexDirection: 'row',
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border,
   },
   ratioTotalRow: {
     flexDirection: 'row',
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.text,
     marginTop: 2,
   },
   ratioCell: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.text,
     textAlign: 'center',
   },
   ratioCellHeader: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
-    color: Colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -373,7 +354,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Inter_700Bold',
     fontSize: 14,
-    color: Colors.text,
     textAlign: 'center',
   },
 });

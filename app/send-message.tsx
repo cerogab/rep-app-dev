@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { useContacts } from '@/lib/contacts-context';
 import { apiRequest } from '@/lib/query-client';
 
@@ -28,6 +28,7 @@ const messageTemplates = [
 
 export default function SendMessageScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { contacts, updateContact } = useContacts();
   const contact = useMemo(() => contacts.find((c) => c.id === id), [contacts, id]);
@@ -36,8 +37,8 @@ export default function SendMessageScreen() {
 
   if (!contact) {
     return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.errorText}>Contact not found</Text>
+      <View style={[styles.container, styles.centered, { backgroundColor: colors.white }]}>
+        <Text style={[styles.errorText, { color: colors.text }]}>Contact not found</Text>
       </View>
     );
   }
@@ -87,74 +88,78 @@ export default function SendMessageScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.white }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 12) }]}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={[styles.cancelText, { color: colors.accent }]}>Cancel</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Send Message</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Send Message</Text>
         <Pressable
           onPress={handleSend}
           disabled={!message.trim() || sending}
           hitSlop={12}
         >
           {sending ? (
-            <ActivityIndicator size="small" color={Colors.accent} />
+            <ActivityIndicator size="small" color={colors.accent} />
           ) : (
             <Ionicons
               name="send"
               size={22}
-              color={message.trim() ? Colors.accent : Colors.textTertiary}
+              color={message.trim() ? colors.accent : colors.textTertiary}
             />
           )}
         </Pressable>
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.recipientCard}>
-          <View style={styles.recipientAvatar}>
-            <Text style={styles.recipientInitial}>
+        <View style={[styles.recipientCard, { backgroundColor: colors.inputBg }]}>
+          <View style={[styles.recipientAvatar, { backgroundColor: colors.primary + '20' }]}>
+            <Text style={[styles.recipientInitial, { color: colors.primary }]}>
               {contact.fullName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
             </Text>
           </View>
           <View style={styles.recipientInfo}>
-            <Text style={styles.recipientName}>{contact.fullName}</Text>
-            <Text style={styles.recipientPhone}>{contact.phone || contact.email}</Text>
+            <Text style={[styles.recipientName, { color: colors.text }]}>{contact.fullName}</Text>
+            <Text style={[styles.recipientPhone, { color: colors.textSecondary }]}>{contact.phone || contact.email}</Text>
           </View>
-          <View style={styles.frequencyBadge}>
-            <Ionicons name="time-outline" size={12} color={Colors.textSecondary} />
-            <Text style={styles.frequencyText}>{contact.frequency}</Text>
+          <View style={[styles.frequencyBadge, { backgroundColor: colors.white }]}>
+            <Ionicons name="time-outline" size={12} color={colors.textSecondary} />
+            <Text style={[styles.frequencyText, { color: colors.textSecondary }]}>{contact.frequency}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>Quick Templates</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Quick Templates</Text>
         <View style={styles.templates}>
           {messageTemplates.map((template, index) => (
             <Pressable
               key={index}
-              style={({ pressed }) => [styles.templateChip, pressed && styles.templateChipPressed]}
+              style={({ pressed }) => [
+                styles.templateChip,
+                { backgroundColor: colors.inputBg, borderColor: colors.border },
+                pressed && { backgroundColor: colors.primary + '10', borderColor: colors.primary + '40' },
+              ]}
               onPress={() => fillTemplate(template)}
             >
-              <Text style={styles.templateText} numberOfLines={2}>
+              <Text style={[styles.templateText, { color: colors.text }]} numberOfLines={2}>
                 {template.replace(/{name}/g, contact.fullName.split(' ')[0]).replace(/{company}/g, contact.company || 'your company')}
               </Text>
             </Pressable>
           ))}
         </View>
 
-        <Text style={styles.sectionLabel}>Your Message</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Your Message</Text>
         <TextInput
-          style={styles.messageInput}
+          style={[styles.messageInput, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
           placeholder="Type your custom marketing message..."
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={message}
           onChangeText={setMessage}
           multiline
@@ -164,6 +169,7 @@ export default function SendMessageScreen() {
         <Pressable
           style={({ pressed }) => [
             styles.sendButton,
+            { backgroundColor: colors.primary, shadowColor: colors.primary },
             (!message.trim() || sending) && styles.sendButtonDisabled,
             pressed && styles.sendButtonPressed,
           ]}
@@ -171,10 +177,10 @@ export default function SendMessageScreen() {
           disabled={!message.trim() || sending}
         >
           {sending ? (
-            <ActivityIndicator size="small" color={Colors.white} />
+            <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
             <>
-              <Ionicons name="send" size={20} color={Colors.white} />
+              <Ionicons name="send" size={20} color="#FFFFFF" />
               <Text style={styles.sendButtonText}>Send Message</Text>
             </>
           )}
@@ -187,7 +193,6 @@ export default function SendMessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
   centered: {
     alignItems: 'center',
@@ -196,7 +201,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 18,
-    color: Colors.text,
   },
   header: {
     flexDirection: 'row',
@@ -208,16 +212,13 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 17,
-    color: Colors.accent,
   },
   headerTitle: {
     fontFamily: 'Inter_700Bold',
     fontSize: 17,
-    color: Colors.text,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border,
   },
   content: {
     padding: 20,
@@ -226,7 +227,6 @@ const styles = StyleSheet.create({
   recipientCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.inputBg,
     borderRadius: 16,
     padding: 14,
     gap: 12,
@@ -235,14 +235,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
   },
   recipientInitial: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.primary,
   },
   recipientInfo: {
     flex: 1,
@@ -250,18 +248,15 @@ const styles = StyleSheet.create({
   recipientName: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: Colors.text,
   },
   recipientPhone: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   frequencyBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.white,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
@@ -269,12 +264,10 @@ const styles = StyleSheet.create({
   frequencyText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 12,
-    color: Colors.textSecondary,
   },
   sectionLabel: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 14,
-    color: Colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 4,
@@ -283,42 +276,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   templateChip: {
-    backgroundColor: Colors.inputBg,
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  templateChipPressed: {
-    backgroundColor: Colors.primary + '10',
-    borderColor: Colors.primary + '40',
   },
   templateText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.text,
     lineHeight: 20,
   },
   messageInput: {
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.text,
-    backgroundColor: Colors.inputBg,
     borderRadius: 16,
     padding: 16,
     minHeight: 140,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   sendButton: {
     flexDirection: 'row',
-    backgroundColor: Colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -333,6 +314,6 @@ const styles = StyleSheet.create({
   sendButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
 });

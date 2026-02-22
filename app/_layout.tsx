@@ -9,20 +9,20 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { ContactsProvider } from "@/lib/contacts-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { ThemeProvider } from "@/lib/theme-context";
+import { ThemeProvider, useColors } from "@/lib/theme-context";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
-import Colors from "@/constants/colors";
 import LoginScreen from "@/app/login";
 
 SplashScreen.preventAutoHideAsync();
 
 function AuthGate() {
   const { isAuthenticated, isLoading } = useAuth();
+  const colors = useColors();
 
   if (isLoading) {
     return (
-      <View style={gateStyles.loading}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[gateStyles.loading, { backgroundColor: colors.white }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -72,7 +72,6 @@ const gateStyles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.white,
   },
 });
 

@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors } from '@/lib/theme-context';
 import { useContacts, Contact, MessageFrequency } from '@/lib/contacts-context';
 import { ContactCard } from '@/components/ContactCard';
 import { FilterChips } from '@/components/FilterChips';
@@ -22,6 +22,7 @@ type FilterOption = 'All' | 'New' | 'Qualified';
 
 export default function ReceiverPage() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const { contacts, isLoading, updateContact } = useContacts();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterOption>('All');
@@ -67,34 +68,34 @@ export default function ReceiverPage() {
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.title}>Receiver page</Text>
-          <Text style={styles.countBadge}>{contacts.length}</Text>
+          <Text style={[styles.title, { color: colors.primary }]}>Receiver page</Text>
+          <Text style={[styles.countBadge, { backgroundColor: colors.primary }]}>{contacts.length}</Text>
         </View>
         <Pressable
-          style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
+          style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
           onPress={handleAddNew}
           hitSlop={8}
         >
-          <Ionicons name="add" size={24} color={Colors.white} />
+          <Ionicons name="add" size={24} color={colors.white} />
         </Pressable>
       </View>
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={Colors.textSecondary} />
+      <View style={[styles.searchContainer, { backgroundColor: colors.white, borderColor: colors.border }]}>
+        <Ionicons name="search" size={18} color={colors.textSecondary} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text }]}
           placeholder="Search contacts..."
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
         />
         {search.length > 0 && (
           <Pressable onPress={() => setSearch('')} hitSlop={8}>
-            <Ionicons name="close-circle" size={18} color={Colors.textSecondary} />
+            <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
           </Pressable>
         )}
       </View>
@@ -105,13 +106,13 @@ export default function ReceiverPage() {
 
       {isLoading ? (
         <View style={styles.emptyState}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : filteredContacts.length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="people-outline" size={48} color={Colors.textTertiary} />
-          <Text style={styles.emptyTitle}>No contacts found</Text>
-          <Text style={styles.emptySubtitle}>
+          <Ionicons name="people-outline" size={48} color={colors.textTertiary} />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No contacts found</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
             {search ? 'Try a different search term' : 'Add your first contact to get started'}
           </Text>
         </View>
@@ -132,7 +133,6 @@ export default function ReceiverPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -150,13 +150,11 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
-    color: Colors.primary,
   },
   countBadge: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 14,
-    color: Colors.white,
-    backgroundColor: Colors.primary,
+    color: '#FFFFFF',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -166,10 +164,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -182,7 +178,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
     marginHorizontal: 16,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -190,13 +185,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 10,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   searchInput: {
     flex: 1,
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.text,
     padding: 0,
   },
   filterContainer: {
@@ -215,13 +208,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 18,
-    color: Colors.text,
     marginTop: 8,
   },
   emptySubtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

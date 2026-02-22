@@ -2,17 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import { useColors, ThemeColors } from '@/lib/theme-context';
 import { Contact, ContactCategory, MessageFrequency } from '@/lib/contacts-context';
 
-const categoryColors: Record<ContactCategory, string> = {
-  New: Colors.chipNew,
-  Contacted: Colors.chipContacted,
-  Qualified: Colors.chipQualified,
-  Unknown: Colors.chipUnknown,
-};
-
 const FREQUENCIES: MessageFrequency[] = ['Weekly', 'Biweekly', 'Monthly'];
+
+function getCategoryColors(colors: ThemeColors): Record<ContactCategory, string> {
+  return {
+    New: colors.chipNew,
+    Contacted: colors.chipContacted,
+    Qualified: colors.chipQualified,
+    Unknown: colors.chipUnknown,
+  };
+}
 
 interface ContactCardProps {
   contact: Contact;
@@ -21,6 +23,9 @@ interface ContactCardProps {
 }
 
 export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCardProps) {
+  const colors = useColors();
+  const categoryColors = getCategoryColors(colors);
+
   const handleFrequencySelect = (freq: MessageFrequency) => {
     if (freq !== contact.frequency) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -30,7 +35,7 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [styles.card, { backgroundColor: colors.white }, pressed && styles.cardPressed]}
       onPress={onPress}
     >
       <View style={styles.cardContent}>
@@ -40,14 +45,14 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
               {contact.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
             </Text>
           </View>
-          <Text style={styles.name} numberOfLines={1}>{contact.fullName}</Text>
+          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>{contact.fullName}</Text>
         </View>
         <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
           <Text style={styles.badgeText}>{contact.category}</Text>
         </View>
       </View>
-      <View style={styles.frequencyRow}>
-        <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
+      <View style={[styles.frequencyRow, { borderTopColor: colors.border }]}>
+        <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -61,7 +66,8 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
                 key={freq}
                 style={[
                   styles.frequencyChip,
-                  isActive && styles.frequencyChipActive,
+                  { backgroundColor: colors.inputBg },
+                  isActive && { backgroundColor: colors.primary + '12', borderColor: colors.primary },
                 ]}
                 onPress={(e) => {
                   e.stopPropagation();
@@ -72,7 +78,8 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
                 <Text
                   style={[
                     styles.frequencyChipText,
-                    isActive && styles.frequencyChipTextActive,
+                    { color: colors.textTertiary },
+                    isActive && { color: colors.primary },
                   ]}
                 >
                   {freq}
@@ -88,7 +95,6 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
@@ -129,7 +135,6 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: Colors.text,
     flex: 1,
   },
   badge: {
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 11,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
   frequencyRow: {
     flexDirection: 'row',
@@ -149,7 +154,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border,
   },
   frequencyChips: {
     flexDirection: 'row',
@@ -159,20 +163,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 12,
-    backgroundColor: Colors.inputBg,
     borderWidth: 1,
     borderColor: 'transparent',
-  },
-  frequencyChipActive: {
-    backgroundColor: Colors.primary + '12',
-    borderColor: Colors.primary,
   },
   frequencyChipText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 12,
-    color: Colors.textTertiary,
-  },
-  frequencyChipTextActive: {
-    color: Colors.primary,
   },
 });

@@ -3,10 +3,10 @@ import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { BlurView } from "expo-blur";
 import { SymbolView } from "expo-symbols";
-import { Platform, StyleSheet, useColorScheme } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useColors } from "@/lib/theme-context";
 
 function NativeTabLayout() {
   return (
@@ -28,15 +28,17 @@ function NativeTabLayout() {
 }
 
 function ClassicTabLayout() {
+  const colors = useColors();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.greyOlive,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.greyOlive,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.white,
-          borderTopColor: Colors.border,
+          backgroundColor: colors.white,
+          borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
           height: Platform.OS === "web" ? 84 : 56,
           paddingBottom: Platform.OS === "web" ? 34 : 6,
