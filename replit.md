@@ -8,10 +8,12 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-02-20: Applied Coolors teal accent palette as accents (badges, charts, secondary text)
 - 2026-02-20: Added login screen (Figma design), auth context, logout flow
 - 2026-02-20: Renamed "Contacts" tab to "Receiver page", moved + button to header next to title
+- 2026-02-22: Replaced contact card call/email buttons with message frequency scroller chips
+- 2026-02-22: Revised logo and theme colors to warm orange/red palette matching new Bram logo
 
 ## User Preferences
-- Dark navy/blue primary color scheme (#0A1628, #1A56DB)
-- Teal/green accent palette from Coolors for badges, charts, secondary text
+- Warm orange/red color scheme matching Bram logo (#E8762D primary, #2D1408 dark)
+- Warm accent palette for badges, charts, secondary text
 - Inter font family throughout
 - Manual Twilio API key setup (not connector OAuth)
 
@@ -38,17 +40,20 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `constants/colors.ts` - Color system
 
 ### Color Scheme
-- Primary: #1A56DB (blue) - headers, FAB, tab active, main CTA
-- Primary Dark: #0A1628 (navy) - gradient backgrounds
-- Accent Palette (Coolors teal):
-  - Granite #5C6F68 - secondary text
-  - Grey Olive #738982 - tertiary text, tab inactive
-  - Muted Teal #8AA39B - Contacted badge
-  - Muted Teal Light #90BEAF - chart bars (calls)
-  - Pearl Aqua #95D9C3 - Qualified badge, success states
-  - Aquamarine #A4F9C8 - highlights
-  - Soft Cyan #A7FFF6 - accent glow
-- Categories: New (blue #1A56DB), Contacted (muted teal #8AA39B), Qualified (pearl aqua #95D9C3), Unknown (grey olive #738982)
+- Primary: #E8762D (warm orange) - headers, buttons, tab active, main CTA
+- Primary Dark: #2D1408 (deep brown) - gradient backgrounds
+- Accent: #D04525 (red-orange) - error states, destructive actions
+- Background: #FDF6F0 (warm off-white)
+- Warm Accent Palette:
+  - Text Secondary #8B6F55 - secondary text
+  - Text Tertiary #A69279 - tertiary text, tab inactive
+  - Contacted #D4956A - warm tan badge
+  - Chart Bars #E8B87A - warm gold
+  - Qualified #E8A84C - amber badge, success states
+  - Highlight #F0C060 - warm gold highlights
+  - Soft Glow #F5D080 - accent glow
+- Categories: New (orange #E8762D), Contacted (warm tan #D4956A), Qualified (amber #E8A84C), Unknown (warm grey #A69279)
+- Logo: assets/images/bram-logo.png (warm orange with circle motif)
 
 ### Twilio Setup
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
