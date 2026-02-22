@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   Platform,
-  Linking,
   Alert,
   TextInput,
 } from 'react-native';
@@ -16,7 +15,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useContacts, ContactCategory } from '@/lib/contacts-context';
-import { CategoryChips } from '@/components/CategoryChips';
 import { FrequencySelector } from '@/components/FrequencySelector';
 import { MessageFrequency } from '@/lib/contacts-context';
 
@@ -34,6 +32,8 @@ export default function ContactDetailScreen() {
   const contact = useMemo(() => contacts.find((c) => c.id === id), [contacts, id]);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesText, setNotesText] = useState(contact?.notes || '');
+  const [editingName, setEditingName] = useState(false);
+  const [nameText, setNameText] = useState(contact?.fullName || '');
 
   if (!contact) {
     return (
@@ -67,19 +67,20 @@ export default function ContactDetailScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  const handleCategoryChange = async (cat: ContactCategory) => {
-    await updateContact(contact.id, { category: cat });
+  const handleSaveName = async () => {
+    const trimmed = nameText.trim();
+    if (trimmed.length > 0) {
+      await updateContact(contact.id, { fullName: trimmed });
+    } else {
+      setNameText(contact.fullName);
+    }
+    setEditingName(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handleFrequencyChange = async (freq: MessageFrequency) => {
     await updateContact(contact.id, { frequency: freq });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const handleSendMessage = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push({ pathname: '/send-message', params: { id: contact.id } });
   };
 
   return (
@@ -103,66 +104,44 @@ export default function ContactDetailScreen() {
               {contact.fullName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
             </Text>
           </View>
-          <Text style={styles.name}>{contact.fullName}</Text>
-          {contact.company ? <Text style={styles.company}>{contact.company}</Text> : null}
+          {editingName ? (
+            <View style={styles.nameEditRow}>
+              <TextInput
+                style={styles.nameInput}
+                value={nameText}
+                onChangeText={setNameText}
+                autoFocus
+                selectTextOnFocus
+                returnKeyType="done"
+                onSubmitEditing={handleSaveName}
+              />
+              <Pressable onPress={handleSaveName} hitSlop={8}>
+                <Ionicons name="checkmark-circle" size={28} color={Colors.primary} />
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={() => {
+                setNameText(contact.fullName);
+                setEditingName(true);
+              }}
+              style={styles.nameRow}
+            >
+              <Text style={styles.name}>{contact.fullName}</Text>
+              <Ionicons name="create-outline" size={18} color={Colors.textTertiary} />
+            </Pressable>
+          )}
           <View style={[styles.categoryBadge, { backgroundColor: categoryColors[contact.category] }]}>
             <Text style={styles.categoryBadgeText}>{contact.category}</Text>
           </View>
         </View>
 
-        <View style={styles.actionsRow}>
-          <Pressable
-            style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
-            onPress={() => Linking.openURL(`tel:${contact.phone.replace(/[^+\d]/g, '')}`)}
-          >
-            <Ionicons name="call" size={22} color={Colors.primary} />
-            <Text style={styles.actionLabel}>Call</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
-            onPress={() => Linking.openURL(`mailto:${contact.email}`)}
-          >
-            <Ionicons name="mail" size={22} color={Colors.primary} />
-            <Text style={styles.actionLabel}>Email</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.actionCard, styles.actionCardPrimary, pressed && styles.actionCardPressed]}
-            onPress={handleSendMessage}
-          >
-            <Ionicons name="chatbubble" size={22} color={Colors.white} />
-            <Text style={[styles.actionLabel, { color: Colors.white }]}>Message</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.infoCard}>
-          <Text style={styles.sectionTitle}>Contact Info</Text>
-          <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={18} color={Colors.textSecondary} />
-            <Text style={styles.infoText}>{contact.email}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="call-outline" size={18} color={Colors.textSecondary} />
-            <Text style={styles.infoText}>{contact.phone || 'No phone'}</Text>
-          </View>
-          {contact.company ? (
-            <View style={styles.infoRow}>
-              <Ionicons name="business-outline" size={18} color={Colors.textSecondary} />
-              <Text style={styles.infoText}>{contact.company}</Text>
-            </View>
-          ) : null}
-        </View>
-
-        <View style={styles.infoCard}>
-          <Text style={styles.sectionTitle}>Category</Text>
-          <CategoryChips selected={contact.category} onSelect={handleCategoryChange} />
-        </View>
-
-        <View style={styles.infoCard}>
+        <View style={styles.card}>
           <Text style={styles.sectionTitle}>Message Frequency</Text>
           <FrequencySelector selected={contact.frequency} onSelect={handleFrequencyChange} />
         </View>
 
-        <View style={styles.infoCard}>
+        <View style={styles.card}>
           <View style={styles.notesHeader}>
             <Text style={styles.sectionTitle}>Notes</Text>
             <Pressable
@@ -262,15 +241,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   name: {
     fontFamily: 'Inter_700Bold',
     fontSize: 24,
     color: Colors.text,
   },
-  company: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 15,
-    color: Colors.textSecondary,
+  nameEditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  nameInput: {
+    flex: 1,
+    fontFamily: 'Inter_700Bold',
+    fontSize: 22,
+    color: Colors.text,
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.primary,
+    paddingVertical: 6,
+    textAlign: 'center',
   },
   categoryBadge: {
     paddingHorizontal: 14,
@@ -283,36 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.white,
   },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionCard: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  actionCardPrimary: {
-    backgroundColor: Colors.primary,
-  },
-  actionCardPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.97 }],
-  },
-  actionLabel: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 13,
-    color: Colors.text,
-  },
-  infoCard: {
+  card: {
     backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 18,
@@ -327,17 +294,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
     color: Colors.text,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  infoText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 15,
-    color: Colors.text,
-    flex: 1,
   },
   notesHeader: {
     flexDirection: 'row',

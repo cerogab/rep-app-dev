@@ -40,10 +40,7 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
               {contact.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
             </Text>
           </View>
-          <View style={styles.info}>
-            <Text style={styles.name} numberOfLines={1}>{contact.fullName}</Text>
-            <Text style={styles.company} numberOfLines={1}>{contact.company || contact.email}</Text>
-          </View>
+          <Text style={styles.name} numberOfLines={1}>{contact.fullName}</Text>
         </View>
         <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
           <Text style={styles.badgeText}>{contact.category}</Text>
@@ -129,19 +126,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
   },
-  info: {
-    flex: 1,
-  },
   name: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
     color: Colors.text,
-    marginBottom: 2,
-  },
-  company: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 13,
-    color: Colors.textSecondary,
+    flex: 1,
   },
   badge: {
     paddingHorizontal: 10,
