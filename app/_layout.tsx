@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { ContactsProvider } from "@/lib/contacts-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 import Colors from "@/constants/colors";
 import LoginScreen from "@/app/login";
@@ -55,6 +56,12 @@ function AuthGate() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="appearance"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ContactsProvider>
   );
@@ -88,13 +95,15 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <GestureHandlerRootView>
-            <KeyboardProvider>
-              <AuthGate />
-            </KeyboardProvider>
-          </GestureHandlerRootView>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <GestureHandlerRootView>
+              <KeyboardProvider>
+                <AuthGate />
+              </KeyboardProvider>
+            </GestureHandlerRootView>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
