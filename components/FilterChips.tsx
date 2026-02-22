@@ -3,14 +3,14 @@ import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 
-type FilterOption = 'All' | 'New' | 'Contacted' | 'Qualified';
+type FilterOption = 'All' | 'New' | 'Qualified';
 
 interface FilterChipsProps {
   selected: FilterOption;
   onSelect: (filter: FilterOption) => void;
 }
 
-const filters: FilterOption[] = ['All', 'New', 'Contacted', 'Qualified'];
+const filters: FilterOption[] = ['All', 'New', 'Qualified'];
 
 export function FilterChips({ selected, onSelect }: FilterChipsProps) {
   const handleSelect = (filter: FilterOption) => {

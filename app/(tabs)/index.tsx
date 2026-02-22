@@ -18,7 +18,7 @@ import { useContacts, Contact, MessageFrequency } from '@/lib/contacts-context';
 import { ContactCard } from '@/components/ContactCard';
 import { FilterChips } from '@/components/FilterChips';
 
-type FilterOption = 'All' | 'New' | 'Contacted' | 'Qualified';
+type FilterOption = 'All' | 'New' | 'Qualified';
 
 export default function ReceiverPage() {
   const insets = useSafeAreaInsets();
