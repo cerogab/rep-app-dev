@@ -7,15 +7,15 @@ import Colors from '@/constants/colors';
 import { useContacts } from '@/lib/contacts-context';
 
 const MONTHLY_REVENUE = [
-  { label: 'Month 1', revenue: 4.20, discount: 1.80 },
-  { label: 'Month 2', revenue: 5.30, discount: 2.10 },
-  { label: 'Month 3', revenue: 5.50, discount: 1.60 },
+  { label: 'February', revenue: 4.20, discountPct: 15, value: 0.75, outreach: 5 },
+  { label: 'March', revenue: 5.30, discountPct: 20, value: 1.00, outreach: 10 },
+  { label: 'April', revenue: 5.50, discountPct: 10, value: 0.50, outreach: 15 },
 ];
 
 const TOTAL_REVENUE = 15.00;
 
 function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
-  const maxVal = Math.max(...data.map((d) => d.revenue + d.discount), 1);
+  const maxVal = Math.max(...data.map((d) => d.outreach), 1);
   const chartHeight = 140;
 
   return (
@@ -28,7 +28,7 @@ function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
                 style={[
                   chartStyles.bar,
                   {
-                    height: (item.revenue / maxVal) * chartHeight,
+                    height: (item.outreach / maxVal) * chartHeight,
                     backgroundColor: Colors.primary,
                   },
                 ]}
@@ -37,24 +37,24 @@ function RevenueBarChart({ data }: { data: typeof MONTHLY_REVENUE }) {
                 style={[
                   chartStyles.bar,
                   {
-                    height: (item.discount / maxVal) * chartHeight,
+                    height: (item.discountPct / 25) * chartHeight,
                     backgroundColor: Colors.chipQualified,
                   },
                 ]}
               />
             </View>
-            <Text style={chartStyles.barLabel}>{item.label}</Text>
+            <Text style={chartStyles.barLabel}>{item.label.slice(0, 3)}</Text>
           </View>
         ))}
       </View>
       <View style={chartStyles.legend}>
         <View style={chartStyles.legendItem}>
           <View style={[chartStyles.legendDot, { backgroundColor: Colors.primary }]} />
-          <Text style={chartStyles.legendText}>Revenue</Text>
+          <Text style={chartStyles.legendText}>Total Outreach</Text>
         </View>
         <View style={chartStyles.legendItem}>
           <View style={[chartStyles.legendDot, { backgroundColor: Colors.chipQualified }]} />
-          <Text style={chartStyles.legendText}>Discount Saved</Text>
+          <Text style={chartStyles.legendText}>Discount %</Text>
         </View>
       </View>
     </View>
@@ -124,8 +124,9 @@ export default function DashboardScreen() {
     const qualifiedCount = contacts.filter((c) => c.category === 'Qualified').length;
     const totalCount = contacts.length;
     const qualifiedRatio = totalCount > 0 ? Math.round((qualifiedCount / totalCount) * 100) : 0;
-    const totalDiscount = MONTHLY_REVENUE.reduce((sum, m) => sum + m.discount, 0);
-    return { total: totalCount, qualifiedCount, qualifiedRatio, totalDiscount };
+    const totalDiscount = MONTHLY_REVENUE.reduce((sum, m) => sum + m.value, 0);
+    const totalOutreach = MONTHLY_REVENUE.reduce((sum, m) => sum + m.outreach, 0);
+    return { total: totalCount, qualifiedCount, qualifiedRatio, totalDiscount, totalOutreach };
   }, [contacts]);
 
   return (
@@ -177,10 +178,10 @@ export default function DashboardScreen() {
         </View>
         <View style={[statStyles.card, { borderLeftColor: Colors.primary }]}>
           <View style={[statStyles.iconWrap, { backgroundColor: Colors.primary + '15' }]}>
-            <Ionicons name="pricetag" size={20} color={Colors.primary} />
+            <Ionicons name="megaphone" size={20} color={Colors.primary} />
           </View>
-          <Text style={statStyles.value}>${stats.totalDiscount.toFixed(2)}</Text>
-          <Text style={statStyles.label}>Discount Saved</Text>
+          <Text style={statStyles.value}>{stats.totalOutreach}</Text>
+          <Text style={statStyles.label}>Total Outreach</Text>
         </View>
       </View>
 
@@ -191,33 +192,30 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Qualified / Discount Ratio</Text>
+        <Text style={styles.chartTitle}>Qualified / Discount Received</Text>
         <Text style={styles.chartSubtitle}>Breakdown per month</Text>
         <View style={styles.ratioTable}>
           <View style={styles.ratioHeaderRow}>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.2 }]}>Month</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Revenue</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Discount</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Ratio</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.4 }]}>Month</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Discount %</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Value</Text>
+            <Text style={[styles.ratioCell, styles.ratioCellHeader]}>Outreach</Text>
           </View>
-          {MONTHLY_REVENUE.map((item) => {
-            const ratio = item.revenue > 0 ? ((item.discount / item.revenue) * 100).toFixed(0) : '0';
-            return (
-              <View key={item.label} style={styles.ratioRow}>
-                <Text style={[styles.ratioCell, { flex: 1.2 }]}>{item.label}</Text>
-                <Text style={styles.ratioCell}>${item.revenue.toFixed(2)}</Text>
-                <Text style={[styles.ratioCell, { color: Colors.chipQualified }]}>${item.discount.toFixed(2)}</Text>
-                <Text style={[styles.ratioCell, { color: Colors.primary, fontFamily: 'Inter_600SemiBold' }]}>{ratio}%</Text>
-              </View>
-            );
-          })}
+          {MONTHLY_REVENUE.map((item) => (
+            <View key={item.label} style={styles.ratioRow}>
+              <Text style={[styles.ratioCell, { flex: 1.4 }]}>{item.label}</Text>
+              <Text style={[styles.ratioCell, { color: Colors.chipQualified }]}>{item.discountPct}%</Text>
+              <Text style={[styles.ratioCell, { color: Colors.primary, fontFamily: 'Inter_600SemiBold' }]}>${item.value.toFixed(2)}</Text>
+              <Text style={styles.ratioCell}>{item.outreach}</Text>
+            </View>
+          ))}
           <View style={styles.ratioTotalRow}>
-            <Text style={[styles.ratioCellTotal, { flex: 1.2 }]}>Total</Text>
-            <Text style={styles.ratioCellTotal}>${TOTAL_REVENUE.toFixed(2)}</Text>
-            <Text style={[styles.ratioCellTotal, { color: Colors.chipQualified }]}>${stats.totalDiscount.toFixed(2)}</Text>
-            <Text style={[styles.ratioCellTotal, { color: Colors.primary }]}>
-              {TOTAL_REVENUE > 0 ? ((stats.totalDiscount / TOTAL_REVENUE) * 100).toFixed(0) : 0}%
+            <Text style={[styles.ratioCellTotal, { flex: 1.4 }]}>Total</Text>
+            <Text style={[styles.ratioCellTotal, { color: Colors.chipQualified }]}>
+              {Math.round(MONTHLY_REVENUE.reduce((s, m) => s + m.discountPct, 0) / MONTHLY_REVENUE.length)}%
             </Text>
+            <Text style={[styles.ratioCellTotal, { color: Colors.primary }]}>${stats.totalDiscount.toFixed(2)}</Text>
+            <Text style={styles.ratioCellTotal}>{stats.totalOutreach}</Text>
           </View>
         </View>
       </View>
