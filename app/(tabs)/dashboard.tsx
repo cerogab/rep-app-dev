@@ -147,18 +147,13 @@ export default function DashboardScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.greetingCard}
       >
-        <Text style={styles.greetingSmall}>Total Revenue</Text>
+        <Text style={styles.greetingSmall}>Total Discount Accepted</Text>
         <Text style={styles.revenueAmount}>${TOTAL_REVENUE.toFixed(2)}</Text>
         <Text style={styles.revenuePeriod}>over 3 months</Text>
         <View style={styles.greetingStats}>
           <View style={styles.greetingStat}>
             <Text style={styles.greetingStatValue}>{stats.qualifiedCount}</Text>
             <Text style={styles.greetingStatLabel}>Qualified</Text>
-          </View>
-          <View style={styles.greetingDivider} />
-          <View style={styles.greetingStat}>
-            <Text style={styles.greetingStatValue}>{stats.qualifiedRatio}%</Text>
-            <Text style={styles.greetingStatLabel}>Ratio</Text>
           </View>
           <View style={styles.greetingDivider} />
           <View style={styles.greetingStat}>
