@@ -122,8 +122,8 @@ export default function SettingsScreen() {
       </View>
 
       <View style={[styles.menuCard, { backgroundColor: colors.white }]}>
-        <MenuRow icon="person-outline" label="Account" onPress={() => showAlert('Account')} colors={colors} />
-        <MenuRow icon="notifications-outline" label="Notifications" onPress={() => showAlert('Notifications')} colors={colors} />
+        <MenuRow icon="person-outline" label="Account" onPress={() => router.push('/account')} colors={colors} />
+        <MenuRow icon="notifications-outline" label="Notifications" onPress={() => router.push('/notifications')} colors={colors} />
         <MenuRow icon="color-palette-outline" label="Appearance" onPress={() => router.push('/appearance')} showDivider={false} colors={colors} />
       </View>
 

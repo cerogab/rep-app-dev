@@ -11,6 +11,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-02-22: Replaced contact card call/email buttons with message frequency scroller chips
 - 2026-02-22: Revised logo and theme colors to warm orange/red palette matching new Bram logo
 - 2026-02-22: Added theme system with Orange and Blue Orange themes, Appearance page, dynamic theming across all screens
+- 2026-02-24: Added Notifications and Account sub-pages in Settings, swipe-back gesture on all settings screens
 
 ## User Preferences
 - Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
@@ -24,7 +25,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Auth**: Simple email/password login stored in AsyncStorage, auth gate in root layout
 - **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
-- **Stack**: contact-detail
+- **Stack**: contact-detail, appearance, notifications, account (all with swipe-back gesture)
 - **Auth Screen**: login.tsx (rendered directly by AuthGate, not via router)
 
 ### Key Files
@@ -34,8 +35,10 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `app/login.tsx` - Login screen (Figma design: logo, tagline, email/password, Face ID)
 - `app/(tabs)/index.tsx` - Receiver page (formerly Contacts) with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
-- `app/(tabs)/settings.tsx` - User profile & settings with Appearance navigation
+- `app/(tabs)/settings.tsx` - User profile & settings with navigation to Account, Notifications, Appearance
 - `app/appearance.tsx` - Theme selection screen with toggle switches
+- `app/notifications.tsx` - Notification preferences (Allow, Email, SMS toggles) with AsyncStorage persistence
+- `app/account.tsx` - Account info display (email, name, member since)
 - `app/add-contact.tsx` - Add new contact modal
 - `app/contact-detail.tsx` - Contact detail view with notes editing
 - `app/send-message.tsx` - SMS message composer with templates
@@ -47,12 +50,12 @@ All screens use `useColors()` hook from `lib/theme-context.tsx` for dynamic colo
 
 **Orange Theme (default):**
 - Primary: #E8762D, Primary Dark: #2D1408, Background: #FDF6F0
-- Categories: New #E8762D, Contacted #D4956A, Qualified #E8A84C, Unknown #A69279
+- Categories: New #E8762D, Contacted #D4956A, Qualified #3B82F6 (blue), Unknown #A69279
 
 **Blue Orange Theme:**
 - Primary: #00068E (navy), Primary Dark: #000347, Background: #F0F4FA
 - Accent blue: #66AAE3, Golden highlight: #E49716
-- Categories: New #00068E, Contacted #66AAE3, Qualified #E49716, Unknown #8B9DC3
+- Categories: New #00068E, Contacted #66AAE3, Qualified #3B82F6 (blue), Unknown #8B9DC3
 
 - Logo: assets/images/bram-logo.png (warm orange with circle motif)
 

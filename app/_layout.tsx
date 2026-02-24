@@ -60,6 +60,24 @@ function AuthGate() {
           name="appearance"
           options={{
             headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+          }}
+        />
+        <Stack.Screen
+          name="notifications"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+          }}
+        />
+        <Stack.Screen
+          name="account"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
           }}
         />
       </Stack>
