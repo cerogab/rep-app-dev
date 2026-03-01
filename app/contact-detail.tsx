@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,14 @@ import {
   Platform,
   Alert,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import QRCode from 'react-native-qrcode-svg';
 import { useColors } from '@/lib/theme-context';
 import { useContacts, ContactCategory } from '@/lib/contacts-context';
@@ -29,6 +32,51 @@ export default function ContactDetailScreen() {
   const [notesText, setNotesText] = useState(contact?.notes || '');
   const [editingName, setEditingName] = useState(false);
   const [nameText, setNameText] = useState(contact?.fullName || '');
+  const [saving, setSaving] = useState(false);
+  const qrRef = useRef<any>(null);
+
+  const handleDownloadQR = useCallback(async () => {
+    if (!qrRef.current || !contact) return;
+    setSaving(true);
+    try {
+      qrRef.current.toDataURL(async (dataURL: string) => {
+        try {
+          if (Platform.OS === 'web') {
+            const link = document.createElement('a');
+            link.href = `data:image/png;base64,${dataURL}`;
+            link.download = `${contact.fullName.replace(/\s+/g, '_')}_QR.png`;
+            link.click();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            Alert.alert('Downloaded', 'QR code saved to your downloads.');
+          } else {
+            const fileName = `${contact.fullName.replace(/\s+/g, '_')}_QR.png`;
+            const filePath = `${FileSystem.cacheDirectory}${fileName}`;
+            await FileSystem.writeAsStringAsync(filePath, dataURL, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            const canShare = await Sharing.isAvailableAsync();
+            if (canShare) {
+              await Sharing.shareAsync(filePath, {
+                mimeType: 'image/png',
+                dialogTitle: 'Save QR Code',
+              });
+            } else {
+              Alert.alert('Saved', `QR code saved to ${filePath}`);
+            }
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
+        } catch (err) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          Alert.alert('Error', 'Could not save QR code. Please try again.');
+        } finally {
+          setSaving(false);
+        }
+      });
+    } catch {
+      setSaving(false);
+      Alert.alert('Error', 'Could not generate QR code image.');
+    }
+  }, [contact]);
 
   const categoryColors: Record<ContactCategory, string> = {
     New: colors.chipNew,
@@ -201,8 +249,28 @@ export default function ContactDetailScreen() {
               size={180}
               color={colors.primaryDark}
               backgroundColor={colors.white}
+              getRef={(ref: any) => { qrRef.current = ref; }}
             />
           </View>
+          <Pressable
+            style={({ pressed }) => [
+              styles.downloadBtn,
+              { backgroundColor: colors.primary },
+              pressed && { opacity: 0.85 },
+              saving && { opacity: 0.6 },
+            ]}
+            onPress={handleDownloadQR}
+            disabled={saving}
+          >
+            {saving ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons name="download-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.downloadBtnText}>Save QR Code</Text>
+              </>
+            )}
+          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -336,5 +404,18 @@ const styles = StyleSheet.create({
   qrContainer: {
     alignItems: 'center',
     paddingVertical: 16,
+  },
+  downloadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  downloadBtnText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 15,
+    color: '#FFFFFF',
   },
 });

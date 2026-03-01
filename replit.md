@@ -15,6 +15,9 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-03-01: Added Vonage SMS integration, "Send Message" button on New contact cards, sent state tracking
 - 2026-03-01: Added Privacy screen with Privacy Policy, DMCA notice, and copyright agent contact info
 - 2026-03-01: Added QR code scanner (expo-camera) with scan button on Receiver page header
+- 2026-03-01: Added QR code download/save button on contact detail (expo-file-system + expo-sharing)
+- 2026-03-01: QR code payload included in SMS messages; QR preview shown on send-message screen
+- 2026-03-01: QR scanner redirects to Receiver page on successful scan
 
 ## User Preferences
 - Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
@@ -47,8 +50,8 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `app/help-support.tsx` - Help & Support with Designated Copyright Agent contact info
 - `app/qr-scanner.tsx` - QR code scanner using expo-camera with permission handling
 - `app/add-contact.tsx` - Add new contact modal
-- `app/contact-detail.tsx` - Contact detail view with notes editing
-- `app/send-message.tsx` - SMS message composer with templates
+- `app/contact-detail.tsx` - Contact detail view with notes editing, QR code with save/download button
+- `app/send-message.tsx` - SMS message composer with templates, QR code preview and payload included in SMS
 - `server/routes.ts` - Twilio and Vonage SMS API endpoints
 - `constants/colors.ts` - Static color definitions (legacy, all screens now use useColors() from theme-context)
 
