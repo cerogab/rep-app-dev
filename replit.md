@@ -28,7 +28,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Auth**: Simple email/password login stored in AsyncStorage, auth gate in root layout
 - **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
-- **Stack**: contact-detail, appearance, notifications, account, privacy (all with swipe-back gesture)
+- **Stack**: contact-detail, appearance, notifications, account, privacy, help-support (all with swipe-back gesture)
 - **Auth Screen**: login.tsx (rendered directly by AuthGate, not via router)
 
 ### Key Files
@@ -43,6 +43,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `app/notifications.tsx` - Notification preferences (Allow, Email, SMS toggles) with AsyncStorage persistence
 - `app/account.tsx` - Account info display (email, name, member since)
 - `app/privacy.tsx` - Privacy Policy & DMCA notice (links to iubenda policy, copyright agent info)
+- `app/help-support.tsx` - Help & Support with Designated Copyright Agent contact info
 - `app/add-contact.tsx` - Add new contact modal
 - `app/contact-detail.tsx` - Contact detail view with notes editing
 - `app/send-message.tsx` - SMS message composer with templates

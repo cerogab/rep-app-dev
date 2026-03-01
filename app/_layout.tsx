@@ -88,6 +88,14 @@ function AuthGate() {
             fullScreenGestureEnabled: true,
           }}
         />
+        <Stack.Screen
+          name="help-support"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+          }}
+        />
       </Stack>
     </ContactsProvider>
   );
