@@ -20,7 +20,7 @@ import { useContacts } from '@/lib/contacts-context';
 import { apiRequest } from '@/lib/query-client';
 
 const messageTemplates = [
-  "Thank you for being a customer. Bram highly values our small business  and today redeem 15% OFF with  in store purchases only. (YES/NO) to Accept!",
+  "Thank you for being a customer. Bram highly values our small business, today redeem 15% OFF with  in store purchases only. (YES/NO) to Accept!",
 ];
 
 export default function SendMessageScreen() {
