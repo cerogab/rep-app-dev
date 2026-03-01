@@ -12,6 +12,7 @@ function getCategoryColors(colors: ThemeColors): Record<ContactCategory, string>
     New: colors.chipNew,
     Contacted: colors.chipContacted,
     Qualified: colors.chipQualified,
+    Outreached: colors.chipOutreached,
     Unknown: colors.chipUnknown,
   };
 }
@@ -53,7 +54,7 @@ export function ContactCard({ contact, onPress, onFrequencyChange, onSendMessage
         </View>
         {contact.category !== 'Contacted' && (
           <View style={[styles.badge, { backgroundColor: categoryColors[contact.category] }]}>
-            <Text style={styles.badgeText}>{contact.category}</Text>
+            <Text style={styles.badgeText}>{contact.category === 'Outreached' ? 'OUTREACHED' : contact.category}</Text>
           </View>
         )}
       </View>

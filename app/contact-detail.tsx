@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import QRCode from 'react-native-qrcode-svg';
 import { useColors } from '@/lib/theme-context';
 import { useContacts, ContactCategory } from '@/lib/contacts-context';
 import { FrequencySelector } from '@/components/FrequencySelector';
@@ -33,6 +34,7 @@ export default function ContactDetailScreen() {
     New: colors.chipNew,
     Contacted: colors.chipContacted,
     Qualified: colors.chipQualified,
+    Outreached: colors.chipOutreached,
     Unknown: colors.chipUnknown,
   };
 
@@ -180,6 +182,28 @@ export default function ContactDetailScreen() {
             </Text>
           )}
         </View>
+
+        <View style={[styles.card, { backgroundColor: colors.white }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact QR Code</Text>
+          <Text style={[styles.qrHint, { color: colors.textSecondary }]}>
+            Scan with the app to mark as outreached
+          </Text>
+          <View style={styles.qrContainer}>
+            <QRCode
+              value={JSON.stringify({
+                type: 'bram_contact',
+                id: contact.id,
+                name: contact.fullName,
+                phone: contact.phone,
+                email: contact.email,
+                company: contact.company,
+              })}
+              size={180}
+              color={colors.primaryDark}
+              backgroundColor={colors.white}
+            />
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -303,5 +327,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
     lineHeight: 22,
+  },
+  qrHint: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    marginTop: -4,
+  },
+  qrContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
   },
 });

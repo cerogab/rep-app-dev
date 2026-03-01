@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useColors } from '@/lib/theme-context';
+import { useContacts } from '@/lib/contacts-context';
 
 export default function QRScannerScreen() {
   const insets = useSafeAreaInsets();
@@ -22,24 +23,47 @@ export default function QRScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const scanLock = useRef(false);
+  const { contacts, updateContact } = useContacts();
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     if (scanLock.current) return;
     scanLock.current = true;
     setScanned(true);
+
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed.type === 'bram_contact' && parsed.id) {
+        const contact = contacts.find((c) => c.id === parsed.id);
+        if (contact) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          updateContact(contact.id, { category: 'Outreached' });
+          Alert.alert(
+            'Contact Outreached',
+            `${contact.fullName} has been marked as OUTREACHED.`,
+            [{ text: 'Done', onPress: () => router.back() }],
+          );
+          return;
+        } else {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          Alert.alert('Contact Not Found', 'This contact is not in your list.', [
+            {
+              text: 'Scan Again',
+              onPress: () => { setScanned(false); scanLock.current = false; },
+            },
+            { text: 'Done', onPress: () => router.back() },
+          ]);
+          return;
+        }
+      }
+    } catch {}
+
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Alert.alert('QR Code Scanned', data, [
       {
         text: 'Scan Again',
-        onPress: () => {
-          setScanned(false);
-          scanLock.current = false;
-        },
+        onPress: () => { setScanned(false); scanLock.current = false; },
       },
-      {
-        text: 'Done',
-        onPress: () => router.back(),
-      },
+      { text: 'Done', onPress: () => router.back() },
     ]);
   };
 

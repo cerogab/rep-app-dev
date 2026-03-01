@@ -57,12 +57,12 @@ All screens use `useColors()` hook from `lib/theme-context.tsx` for dynamic colo
 
 **Orange Theme (default):**
 - Primary: #E8762D, Primary Dark: #2D1408, Background: #FDF6F0
-- Categories: New #E8762D, Contacted #D4956A, Qualified #3B82F6 (blue), Unknown #A69279
+- Categories: New #E8762D, Contacted #D4956A, Qualified #3B82F6 (blue), Outreached #22C55E (green), Unknown #A69279
 
 **Blue Orange Theme:**
 - Primary: #00068E (navy), Primary Dark: #000347, Background: #F0F4FA
 - Accent blue: #66AAE3, Golden highlight: #E49716
-- Categories: New #00068E, Contacted #66AAE3, Qualified #3B82F6 (blue), Unknown #8B9DC3
+- Categories: New #00068E, Contacted #66AAE3, Qualified #3B82F6 (blue), Outreached #22C55E (green), Unknown #8B9DC3
 
 - Logo: assets/images/bram-logo.png (warm orange with circle motif)
 

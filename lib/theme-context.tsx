@@ -20,6 +20,7 @@ export interface ThemeColors {
   chipNew: string;
   chipContacted: string;
   chipQualified: string;
+  chipOutreached: string;
   chipUnknown: string;
   white: string;
   black: string;
@@ -57,6 +58,7 @@ const orangeTheme: ThemeColors = {
   chipNew: '#E8762D',
   chipContacted: '#D4956A',
   chipQualified: '#3B82F6',
+  chipOutreached: '#22C55E',
   chipUnknown: '#A69279',
   white: '#FFFFFF',
   black: '#000000',
@@ -94,6 +96,7 @@ const blueOrangeTheme: ThemeColors = {
   chipNew: '#EA802B',
   chipContacted: '#66AAE3',
   chipQualified: '#3B82F6',
+  chipOutreached: '#22C55E',
   chipUnknown: '#9A8E89',
   white: '#FFFFFF',
   black: '#000000',

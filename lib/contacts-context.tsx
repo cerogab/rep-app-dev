@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type ContactCategory = 'New' | 'Contacted' | 'Qualified' | 'Unknown';
+export type ContactCategory = 'New' | 'Contacted' | 'Qualified' | 'Outreached' | 'Unknown';
 export type MessageFrequency = 'Weekly' | 'Biweekly' | 'Monthly';
 
 export interface Contact {
