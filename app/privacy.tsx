@@ -35,10 +35,6 @@ const SECTIONS = [
   {
     body: `If you send us a valid, written Counter Notification meeting the requirements described above, we will restore your removed or disabled material, unless we first receive notice from the party filing the Notification informing us that such party has filed a court action to restrain you from engaging in infringing activity related to the material in question. Please note that if you materially misrepresent that the disabled or removed content was removed by mistake or misidentification, you may be liable for damages, including costs and attorney's fees. Filing a false Counter Notification constitutes perjury.`,
   },
-  {
-    subtitle: 'Designated Copyright Agent',
-    body: `Gustavo\nAttn: Copyright Agent\n12676 SW 145TH ST\nMiami, FL 33186-5986\nUnited States\nbram0001@bramllc.app`,
-  },
 ];
 
 export default function PrivacyScreen() {
