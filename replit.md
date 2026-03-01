@@ -13,6 +13,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-02-22: Added theme system with Orange and Blue Orange themes, Appearance page, dynamic theming across all screens
 - 2026-02-24: Added Notifications and Account sub-pages in Settings, swipe-back gesture on all settings screens
 - 2026-03-01: Added Vonage SMS integration, "Send Message" button on New contact cards, sent state tracking
+- 2026-03-01: Added Privacy screen with Privacy Policy, DMCA notice, and copyright agent contact info
 
 ## User Preferences
 - Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
@@ -27,7 +28,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - **Auth**: Simple email/password login stored in AsyncStorage, auth gate in root layout
 - **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
-- **Stack**: contact-detail, appearance, notifications, account (all with swipe-back gesture)
+- **Stack**: contact-detail, appearance, notifications, account, privacy (all with swipe-back gesture)
 - **Auth Screen**: login.tsx (rendered directly by AuthGate, not via router)
 
 ### Key Files
@@ -41,6 +42,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `app/appearance.tsx` - Theme selection screen with toggle switches
 - `app/notifications.tsx` - Notification preferences (Allow, Email, SMS toggles) with AsyncStorage persistence
 - `app/account.tsx` - Account info display (email, name, member since)
+- `app/privacy.tsx` - Privacy Policy & DMCA notice (links to iubenda policy, copyright agent info)
 - `app/add-contact.tsx` - Add new contact modal
 - `app/contact-detail.tsx` - Contact detail view with notes editing
 - `app/send-message.tsx` - SMS message composer with templates

@@ -128,7 +128,7 @@ export default function SettingsScreen() {
       </View>
 
       <View style={[styles.menuCard, { backgroundColor: colors.white }]}>
-        <MenuRow icon="shield-outline" label="Privacy" onPress={() => showAlert('Privacy')} colors={colors} />
+        <MenuRow icon="shield-outline" label="Privacy" onPress={() => router.push('/privacy')} colors={colors} />
         <MenuRow icon="help-circle-outline" label="Help & Support" onPress={() => showAlert('Help & Support')} showDivider={false} colors={colors} />
       </View>
 

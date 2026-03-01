@@ -80,6 +80,14 @@ function AuthGate() {
             fullScreenGestureEnabled: true,
           }}
         />
+        <Stack.Screen
+          name="privacy"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+          }}
+        />
       </Stack>
     </ContactsProvider>
   );
