@@ -40,7 +40,7 @@ export default function QRScannerScreen() {
           Alert.alert(
             'Contact Outreached',
             `${contact.fullName} has been marked as OUTREACHED.`,
-            [{ text: 'Done', onPress: () => router.back() }],
+            [{ text: 'Done', onPress: () => router.replace('/(tabs)') }],
           );
           return;
         } else {

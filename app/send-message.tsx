@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import QRCode from 'react-native-qrcode-svg';
 import { useColors } from '@/lib/theme-context';
 import { useContacts } from '@/lib/contacts-context';
 import { apiRequest } from '@/lib/query-client';
@@ -48,14 +49,25 @@ export default function SendMessageScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
+  const qrPayload = JSON.stringify({
+    type: 'bram_contact',
+    id: contact.id,
+    name: contact.fullName,
+    phone: contact.phone,
+    email: contact.email,
+    company: contact.company,
+  });
+
   const handleSend = async () => {
     if (!message.trim()) return;
     setSending(true);
 
+    const fullMessage = `${message.trim()}\n\nScan QR Code: ${qrPayload}`;
+
     try {
       await apiRequest('POST', '/api/send-vonage-message', {
         phone: contact.phone,
-        message: message.trim(),
+        message: fullMessage,
         contactName: contact.fullName,
       });
 
@@ -148,6 +160,19 @@ export default function SendMessageScreen() {
               </Text>
             </Pressable>
           ))}
+        </View>
+
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>QR Code (included in message)</Text>
+        <View style={[styles.qrCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+          <QRCode
+            value={qrPayload}
+            size={120}
+            color={colors.primaryDark}
+            backgroundColor={colors.inputBg}
+          />
+          <Text style={[styles.qrHint, { color: colors.textTertiary }]}>
+            This QR code will be sent with your message
+          </Text>
         </View>
 
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Your Message</Text>
@@ -279,6 +304,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
     lineHeight: 20,
+  },
+  qrCard: {
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 12,
+  },
+  qrHint: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    textAlign: 'center',
   },
   messageInput: {
     fontFamily: 'Inter_400Regular',
