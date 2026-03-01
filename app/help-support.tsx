@@ -45,16 +45,6 @@ export default function HelpSupportScreen() {
             <Text style={[styles.infoText, { color: colors.text }]}>Attn: Copyright Agent</Text>
           </View>
 
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-          <View style={styles.infoRow}>
-            <Ionicons name="location-outline" size={18} color={colors.primary} />
-            <View>
-              <Text style={[styles.infoText, { color: colors.text }]}>12676 SW 145TH ST</Text>
-              <Text style={[styles.infoText, { color: colors.text }]}>Miami, FL 33186-5986</Text>
-              <Text style={[styles.infoText, { color: colors.text }]}>United States</Text>
-            </View>
-          </View>
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
