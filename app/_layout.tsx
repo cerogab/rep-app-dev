@@ -96,6 +96,14 @@ function AuthGate() {
             fullScreenGestureEnabled: true,
           }}
         />
+        <Stack.Screen
+          name="qr-scanner"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+          }}
+        />
       </Stack>
     </ContactsProvider>
   );

@@ -80,13 +80,25 @@ export default function ReceiverPage() {
           <Text style={[styles.title, { color: colors.primary }]}>Receiver page</Text>
           <Text style={[styles.countBadge, { backgroundColor: colors.primary }]}>{contacts.length}</Text>
         </View>
-        <Pressable
-          style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
-          onPress={handleAddNew}
-          hitSlop={8}
-        >
-          <Ionicons name="add" size={24} color={colors.white} />
-        </Pressable>
+        <View style={styles.headerButtons}>
+          <Pressable
+            style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push('/qr-scanner');
+            }}
+            hitSlop={8}
+          >
+            <Ionicons name="qr-code-outline" size={22} color={colors.white} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
+            onPress={handleAddNew}
+            hitSlop={8}
+          >
+            <Ionicons name="add" size={24} color={colors.white} />
+          </Pressable>
+        </View>
       </View>
 
       <View style={[styles.searchContainer, { backgroundColor: colors.white, borderColor: colors.border }]}>
@@ -165,6 +177,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   addBtn: {
     width: 40,
