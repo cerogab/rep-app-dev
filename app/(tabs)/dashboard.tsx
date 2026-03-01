@@ -1,132 +1,54 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Platform, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useColors, ThemeColors } from '@/lib/theme-context';
-import { useContacts } from '@/lib/contacts-context';
+import { useColors } from '@/lib/theme-context';
 
-const MONTHLY_REVENUE = [
-  { label: 'February', revenue: 4.20, discountPct: 15, value: 0.75, outreach: 5 },
-  { label: 'March', revenue: 5.30, discountPct: 20, value: 1.00, outreach: 10 },
-  { label: 'April', revenue: 5.50, discountPct: 10, value: 0.50, outreach: 15 },
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-const TOTAL_REVENUE = 15.00;
+const QUARTERS: { label: string; months: number[] }[] = [
+  { label: 'Q1', months: [0, 1, 2] },
+  { label: 'Q2', months: [3, 4, 5] },
+  { label: 'Q3', months: [6, 7, 8] },
+  { label: 'Q4', months: [9, 10, 11] },
+];
 
-function RevenueBarChart({ data, colors }: { data: typeof MONTHLY_REVENUE; colors: ThemeColors }) {
-  const maxVal = Math.max(...data.map((d) => d.outreach), 1);
-  const chartHeight = 140;
-
-  return (
-    <View style={chartStyles.container}>
-      <View style={chartStyles.barsRow}>
-        {data.map((item) => (
-          <View key={item.label} style={chartStyles.barGroup}>
-            <View style={chartStyles.barPair}>
-              <View
-                style={[
-                  chartStyles.bar,
-                  {
-                    height: (item.outreach / maxVal) * chartHeight,
-                    backgroundColor: colors.primary,
-                  },
-                ]}
-              />
-              <View
-                style={[
-                  chartStyles.bar,
-                  {
-                    height: (item.discountPct / 25) * chartHeight,
-                    backgroundColor: colors.chipQualified,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={[chartStyles.barLabel, { color: colors.textSecondary }]}>{item.label.slice(0, 3)}</Text>
-          </View>
-        ))}
-      </View>
-      <View style={chartStyles.legend}>
-        <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: colors.primary }]} />
-          <Text style={[chartStyles.legendText, { color: colors.textSecondary }]}>Total Outreach</Text>
-        </View>
-        <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: colors.chipQualified }]} />
-          <Text style={[chartStyles.legendText, { color: colors.textSecondary }]}>Discount %</Text>
-        </View>
-      </View>
-    </View>
-  );
+interface MonthData {
+  discountPct: number;
+  outreach: number;
 }
-
-const chartStyles = StyleSheet.create({
-  container: {
-    paddingTop: 8,
-  },
-  barsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 160,
-    paddingHorizontal: 8,
-  },
-  barGroup: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  barPair: {
-    flexDirection: 'row',
-    gap: 4,
-    alignItems: 'flex-end',
-  },
-  bar: {
-    width: 20,
-    borderRadius: 4,
-    minHeight: 4,
-  },
-  barLabel: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 11,
-    marginTop: 6,
-  },
-  legend: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 20,
-    marginTop: 16,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-  },
-});
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
-  const { contacts } = useContacts();
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
-  const stats = useMemo(() => {
-    const qualifiedCount = contacts.filter((c) => c.category === 'Qualified').length;
-    const totalCount = contacts.length;
-    const qualifiedRatio = totalCount > 0 ? Math.round((qualifiedCount / totalCount) * 100) : 0;
-    const totalDiscount = MONTHLY_REVENUE.reduce((sum, m) => sum + m.value, 0);
-    const totalOutreach = MONTHLY_REVENUE.reduce((sum, m) => sum + m.outreach, 0);
-    return { total: totalCount, qualifiedCount, qualifiedRatio, totalDiscount, totalOutreach };
-  }, [contacts]);
+  const [revenue, setRevenue] = useState('');
+  const [monthData, setMonthData] = useState<MonthData[]>(
+    MONTHS.map(() => ({ discountPct: 0, outreach: 0 }))
+  );
+
+  const revenueNum = parseFloat(revenue) || 0;
+
+  const updateMonth = (index: number, field: keyof MonthData, val: string) => {
+    const num = parseFloat(val) || 0;
+    setMonthData((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: num };
+      return updated;
+    });
+  };
+
+  const calcValue = (discountPct: number) => (discountPct / 100) * revenueNum;
+
+  const totals = useMemo(() => {
+    const totalDiscount = monthData.reduce((s, m) => s + calcValue(m.discountPct), 0);
+    const totalOutreach = monthData.reduce((s, m) => s + m.outreach, 0);
+    const avgDiscount = monthData.reduce((s, m) => s + m.discountPct, 0) / 12;
+    return { totalDiscount, totalOutreach, avgDiscount };
+  }, [monthData, revenueNum]);
 
   return (
     <ScrollView
@@ -140,76 +62,104 @@ export default function DashboardScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <LinearGradient
-        colors={[colors.primaryDark, colors.primary]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.greetingCard}
-      >
-        <Text style={styles.greetingSmall}>Total Discount Accepted</Text>
-        <Text style={styles.revenueAmount}>${TOTAL_REVENUE.toFixed(2)}</Text>
-        <Text style={styles.revenuePeriod}>over 3 months</Text>
-        <View style={styles.greetingStats}>
-          <View style={styles.greetingStat}>
-            <Text style={styles.greetingStatValue}>{stats.qualifiedCount}</Text>
-            <Text style={styles.greetingStatLabel}>Qualified</Text>
-          </View>
-          <View style={styles.greetingDivider} />
-          <View style={styles.greetingStat}>
-            <Text style={styles.greetingStatValue}>${stats.totalDiscount.toFixed(2)}</Text>
-            <Text style={styles.greetingStatLabel}>Saved</Text>
-          </View>
-        </View>
-      </LinearGradient>
+      <Text style={[styles.pageTitle, { color: colors.primary }]}>Total Discount Received</Text>
 
-      <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: colors.white, borderLeftColor: colors.chipQualified }]}>
-          <View style={[styles.statIconWrap, { backgroundColor: colors.chipQualified + '15' }]}>
-            <Ionicons name="checkmark-circle" size={20} color={colors.chipQualified} />
-          </View>
-          <Text style={[styles.statValue, { color: colors.text }]}>{stats.qualifiedCount}</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Qualified</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: colors.white, borderLeftColor: colors.primary }]}>
-          <View style={[styles.statIconWrap, { backgroundColor: colors.primary + '15' }]}>
-            <Ionicons name="megaphone" size={20} color={colors.primary} />
-          </View>
-          <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalOutreach}</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Outreach</Text>
+      <View style={[styles.revenueCard, { backgroundColor: colors.primaryDark }]}>
+        <Text style={styles.revenueLabel}>MONTHLY REVENUE ($)</Text>
+        <View style={[styles.revenueInputWrap, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+          <TextInput
+            style={styles.revenueInput}
+            placeholder="Enter revenue..."
+            placeholderTextColor="rgba(255,255,255,0.5)"
+            value={revenue}
+            onChangeText={setRevenue}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
         </View>
       </View>
 
-      <View style={[styles.chartCard, { backgroundColor: colors.white }]}>
-        <Text style={[styles.chartTitle, { color: colors.text }]}>Revenue Analytics</Text>
-        <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>Qualified revenue & discount ratio over 3 months</Text>
-        <RevenueBarChart data={MONTHLY_REVENUE} colors={colors} />
-      </View>
+      {QUARTERS.map((quarter) => (
+        <View key={quarter.label} style={[styles.quarterCard, { backgroundColor: colors.white }]}>
+          <Text style={[styles.quarterLabel, { color: colors.primary }]}>{quarter.label}</Text>
 
-      <View style={[styles.chartCard, { backgroundColor: colors.white }]}>
-        <Text style={[styles.chartTitle, { color: colors.text }]}>Qualified / Discount Received</Text>
-        <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>Breakdown per month</Text>
-        <View style={styles.ratioTable}>
-          <View style={[styles.ratioHeaderRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { flex: 1.4, color: colors.textSecondary }]}>Month</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Discount %</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Value</Text>
-            <Text style={[styles.ratioCell, styles.ratioCellHeader, { color: colors.textSecondary }]}>Outreach</Text>
-          </View>
-          {MONTHLY_REVENUE.map((item) => (
-            <View key={item.label} style={[styles.ratioRow, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.ratioCell, { flex: 1.4, color: colors.text }]}>{item.label}</Text>
-              <Text style={[styles.ratioCell, { color: colors.chipQualified }]}>{item.discountPct}%</Text>
-              <Text style={[styles.ratioCell, { color: colors.primary, fontFamily: 'Inter_600SemiBold' }]}>${item.value.toFixed(2)}</Text>
-              <Text style={[styles.ratioCell, { color: colors.text }]}>{item.outreach}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View>
+              <View style={[styles.tableHeader, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.headerCell, styles.monthCell, { color: colors.textSecondary }]}>MONTH</Text>
+                <Text style={[styles.headerCell, styles.dataCell, { color: colors.textSecondary }]}>DISCOUNT %</Text>
+                <Text style={[styles.headerCell, styles.dataCell, { color: colors.textSecondary }]}>VALUE ($)</Text>
+                <Text style={[styles.headerCell, styles.dataCell, { color: colors.textSecondary }]}>OUTREACH</Text>
+                <Text style={[styles.headerCell, styles.accountedCell, { color: colors.textSecondary }]}>DISCOUNTS ACCOUNTED</Text>
+              </View>
+
+              {quarter.months.map((mi) => {
+                const val = calcValue(monthData[mi].discountPct);
+                return (
+                  <View key={mi} style={[styles.tableRow, { borderBottomColor: colors.border }]}>
+                    <Text style={[styles.rowCell, styles.monthCell, { color: colors.text }]}>{MONTHS[mi]}</Text>
+                    <View style={[styles.inputCell, styles.dataCell]}>
+                      <TextInput
+                        style={[styles.cellInput, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
+                        value={monthData[mi].discountPct === 0 ? '' : String(monthData[mi].discountPct)}
+                        onChangeText={(v) => updateMonth(mi, 'discountPct', v)}
+                        keyboardType="numeric"
+                        placeholder="0"
+                        placeholderTextColor={colors.textTertiary}
+                      />
+                    </View>
+                    <Text style={[styles.rowCell, styles.dataCell, { color: colors.textTertiary }]}>
+                      {val === 0 ? '0.00' : val.toFixed(2)}
+                    </Text>
+                    <View style={[styles.inputCell, styles.dataCell]}>
+                      <TextInput
+                        style={[styles.cellInput, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
+                        value={monthData[mi].outreach === 0 ? '' : String(monthData[mi].outreach)}
+                        onChangeText={(v) => updateMonth(mi, 'outreach', v)}
+                        keyboardType="numeric"
+                        placeholder="0"
+                        placeholderTextColor={colors.textTertiary}
+                      />
+                    </View>
+                    <Text style={[styles.rowCell, styles.accountedCell, { color: colors.text, fontFamily: 'Inter_600SemiBold' }]}>
+                      ${val === 0 ? '0.00' : val.toFixed(2)}
+                    </Text>
+                  </View>
+                );
+              })}
+
+              <View style={[styles.quarterTotalRow, { borderTopColor: colors.text }]}>
+                <Text style={[styles.totalCell, styles.monthCell, { color: colors.text }]}>Subtotal</Text>
+                <Text style={[styles.totalCell, styles.dataCell, { color: colors.chipQualified }]}>
+                  {Math.round(quarter.months.reduce((s, mi) => s + monthData[mi].discountPct, 0) / 3)}%
+                </Text>
+                <Text style={[styles.totalCell, styles.dataCell, { color: colors.primary }]}>
+                  ${quarter.months.reduce((s, mi) => s + calcValue(monthData[mi].discountPct), 0).toFixed(2)}
+                </Text>
+                <Text style={[styles.totalCell, styles.dataCell, { color: colors.text }]}>
+                  {quarter.months.reduce((s, mi) => s + monthData[mi].outreach, 0)}
+                </Text>
+                <Text style={[styles.totalCell, styles.accountedCell, { color: colors.primary, fontFamily: 'Inter_700Bold' }]}>
+                  ${quarter.months.reduce((s, mi) => s + calcValue(monthData[mi].discountPct), 0).toFixed(2)}
+                </Text>
+              </View>
             </View>
-          ))}
-          <View style={[styles.ratioTotalRow, { borderTopColor: colors.text }]}>
-            <Text style={[styles.ratioCellTotal, { flex: 1.4, color: colors.text }]}>Total</Text>
-            <Text style={[styles.ratioCellTotal, { color: colors.chipQualified }]}>
-              {Math.round(MONTHLY_REVENUE.reduce((s, m) => s + m.discountPct, 0) / MONTHLY_REVENUE.length)}%
-            </Text>
-            <Text style={[styles.ratioCellTotal, { color: colors.primary }]}>${stats.totalDiscount.toFixed(2)}</Text>
-            <Text style={[styles.ratioCellTotal, { color: colors.text }]}>{stats.totalOutreach}</Text>
+          </ScrollView>
+        </View>
+      ))}
+
+      <View style={[styles.grandTotalCard, { backgroundColor: colors.primaryDark }]}>
+        <Text style={styles.grandTotalLabel}>Annual Total</Text>
+        <Text style={styles.grandTotalValue}>${totals.totalDiscount.toFixed(2)}</Text>
+        <View style={styles.grandTotalStats}>
+          <View style={styles.grandTotalStat}>
+            <Text style={styles.grandTotalStatValue}>{Math.round(totals.avgDiscount)}%</Text>
+            <Text style={styles.grandTotalStatLabel}>Avg Discount</Text>
+          </View>
+          <View style={styles.grandTotalDivider} />
+          <View style={styles.grandTotalStat}>
+            <Text style={styles.grandTotalStatValue}>{totals.totalOutreach}</Text>
+            <Text style={styles.grandTotalStatLabel}>Total Outreach</Text>
           </View>
         </View>
       </View>
@@ -222,138 +172,143 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 16,
   },
-  greetingCard: {
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 4,
-  },
-  greetingSmall: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  revenueAmount: {
+  pageTitle: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 36,
-    color: '#FFFFFF',
-    marginTop: 4,
+    fontSize: 28,
+    paddingHorizontal: 4,
   },
-  revenuePeriod: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 2,
+  revenueCard: {
+    borderRadius: 16,
+    padding: 20,
   },
-  greetingStats: {
-    flexDirection: 'row',
-    marginTop: 20,
-    gap: 16,
-  },
-  greetingStat: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  greetingStatValue: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 20,
-    color: '#FFFFFF',
-  },
-  greetingStatLabel: {
-    fontFamily: 'Inter_400Regular',
+  revenueLabel: {
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 2,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+    marginBottom: 10,
   },
-  greetingDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+  revenueInputWrap: {
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
+  revenueInput: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 16,
+    color: '#FFFFFF',
+    padding: 0,
   },
-  statCard: {
+  quarterCard: {
     borderRadius: 16,
     padding: 16,
-    flex: 1,
-    borderLeftWidth: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
   },
-  statIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  statValue: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 24,
-  },
-  statLabel: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  chartCard: {
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  chartTitle: {
+  quarterLabel: {
     fontFamily: 'Inter_700Bold',
     fontSize: 18,
+    marginBottom: 12,
   },
-  chartSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 13,
-    marginTop: 2,
-  },
-  ratioTable: {
-    marginTop: 16,
-    gap: 0,
-  },
-  ratioHeaderRow: {
+  tableHeader: {
     flexDirection: 'row',
     paddingVertical: 10,
     borderBottomWidth: 1,
   },
-  ratioRow: {
-    flexDirection: 'row',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  ratioTotalRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    marginTop: 2,
-  },
-  ratioCell: {
-    flex: 1,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  ratioCellHeader: {
+  headerCell: {
     fontFamily: 'Inter_600SemiBold',
-    fontSize: 12,
+    fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-  ratioCellTotal: {
-    flex: 1,
-    fontFamily: 'Inter_700Bold',
-    fontSize: 14,
     textAlign: 'center',
+  },
+  monthCell: {
+    width: 80,
+    textAlign: 'left',
+  },
+  dataCell: {
+    width: 80,
+  },
+  accountedCell: {
+    width: 110,
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  rowCell: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  inputCell: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cellInput: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    textAlign: 'center',
+    width: 56,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  quarterTotalRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    marginTop: 4,
+  },
+  totalCell: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  grandTotalCard: {
+    borderRadius: 20,
+    padding: 24,
+  },
+  grandTotalLabel: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.7)',
+  },
+  grandTotalValue: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 36,
+    color: '#FFFFFF',
+    marginTop: 4,
+  },
+  grandTotalStats: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 16,
+  },
+  grandTotalStat: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  grandTotalStatValue: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
+  grandTotalStatLabel: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 2,
+  },
+  grandTotalDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
 });
