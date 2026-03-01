@@ -20,10 +20,7 @@ import { useContacts } from '@/lib/contacts-context';
 import { apiRequest } from '@/lib/query-client';
 
 const messageTemplates = [
-  "Hi {name}, we have some exciting updates from BRAM that we'd love to share with you!",
-  "Hello {name}, following up on our conversation. Let us know if you have any questions.",
-  "Hey {name}! We have a special offer exclusively for {company}. Would love to discuss.",
-  "Dear {name}, thank you for your interest. Here's what we can offer your team at {company}.",
+  "Thank you for being a customer. Bram highly values our small business  and today redeem 15% OFF with  in store purchases only. (YES/NO) to Accept!",
 ];
 
 export default function SendMessageScreen() {
@@ -147,7 +144,7 @@ export default function SendMessageScreen() {
               onPress={() => fillTemplate(template)}
             >
               <Text style={[styles.templateText, { color: colors.text }]} numberOfLines={2}>
-                {template.replace(/{name}/g, contact.fullName.split(' ')[0]).replace(/{company}/g, contact.company || 'your company')}
+                {template}
               </Text>
             </Pressable>
           ))}
