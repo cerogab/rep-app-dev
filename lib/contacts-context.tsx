@@ -14,6 +14,7 @@ export interface Contact {
   frequency: MessageFrequency;
   notes: string;
   createdAt: number;
+  messageSent?: boolean;
 }
 
 interface ContactsContextValue {

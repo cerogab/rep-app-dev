@@ -56,16 +56,17 @@ export default function SendMessageScreen() {
     setSending(true);
 
     try {
-      await apiRequest('POST', '/api/send-message', {
-        contactId: contact.id,
+      await apiRequest('POST', '/api/send-vonage-message', {
         phone: contact.phone,
         message: message.trim(),
         contactName: contact.fullName,
       });
 
+      const updates: { category?: 'Contacted'; messageSent: boolean } = { messageSent: true };
       if (contact.category === 'New') {
-        await updateContact(contact.id, { category: 'Contacted' });
+        updates.category = 'Contacted';
       }
+      await updateContact(contact.id, updates);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Message Sent', `Your message has been sent to ${contact.fullName}.`, [
@@ -75,12 +76,9 @@ export default function SendMessageScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(
         'Message Queued',
-        `Message saved for ${contact.fullName}. Twilio is not configured yet - set up your API keys to send SMS.`,
+        `Message saved for ${contact.fullName}. Vonage is not configured yet - set up your API keys to send SMS.`,
         [{ text: 'OK', onPress: () => router.back() }],
       );
-      if (contact.category === 'New') {
-        await updateContact(contact.id, { category: 'Contacted' });
-      }
     } finally {
       setSending(false);
     }

@@ -20,9 +20,10 @@ interface ContactCardProps {
   contact: Contact;
   onPress: () => void;
   onFrequencyChange: (frequency: MessageFrequency) => void;
+  onSendMessage?: () => void;
 }
 
-export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCardProps) {
+export function ContactCard({ contact, onPress, onFrequencyChange, onSendMessage }: ContactCardProps) {
   const colors = useColors();
   const categoryColors = getCategoryColors(colors);
 
@@ -32,6 +33,9 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
       onFrequencyChange(freq);
     }
   };
+
+  const showSendButton = contact.category === 'New' || !!contact.messageSent;
+  const isSent = !!contact.messageSent;
 
   return (
     <Pressable
@@ -91,6 +95,41 @@ export function ContactCard({ contact, onPress, onFrequencyChange }: ContactCard
           })}
         </ScrollView>
       </View>
+      {showSendButton && (
+        <View style={[styles.sendRow, { borderTopColor: colors.border }]}>
+          <Pressable
+            style={[
+              styles.sendButton,
+              { backgroundColor: isSent ? colors.border : colors.primary },
+              isSent && styles.sendButtonDisabled,
+              isSent && { pointerEvents: 'none' as const },
+            ]}
+            onPress={(e) => {
+              e.stopPropagation();
+              if (!isSent && onSendMessage) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                onSendMessage();
+              }
+            }}
+            disabled={isSent}
+            hitSlop={isSent ? 0 : 4}
+          >
+            <Ionicons
+              name={isSent ? 'checkmark-circle' : 'chatbubble-outline'}
+              size={16}
+              color={isSent ? colors.textTertiary : '#FFFFFF'}
+            />
+            <Text
+              style={[
+                styles.sendButtonText,
+                { color: isSent ? colors.textTertiary : '#FFFFFF' },
+              ]}
+            >
+              {isSent ? 'Sent' : 'Send Message'}
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -171,5 +210,26 @@ const styles = StyleSheet.create({
   frequencyChipText: {
     fontFamily: 'Inter_500Medium',
     fontSize: 12,
+  },
+  sendRow: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    alignItems: 'flex-start',
+  },
+  sendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  sendButtonDisabled: {
+    opacity: 0.7,
+  },
+  sendButtonText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 13,
   },
 });

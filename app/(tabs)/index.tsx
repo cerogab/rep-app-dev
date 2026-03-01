@@ -57,11 +57,17 @@ export default function ReceiverPage() {
     router.push('/add-contact');
   };
 
+  const handleSendMessage = (contact: Contact) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push({ pathname: '/send-message', params: { id: contact.id } });
+  };
+
   const renderContact = ({ item }: { item: Contact }) => (
     <ContactCard
       contact={item}
       onPress={() => handleContactPress(item)}
       onFrequencyChange={(freq) => handleFrequencyChange(item, freq)}
+      onSendMessage={() => handleSendMessage(item)}
     />
   );
 
