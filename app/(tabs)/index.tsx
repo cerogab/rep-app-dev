@@ -27,6 +27,13 @@ export default function ReceiverPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterOption>('All');
 
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
+
   const filteredContacts = useMemo(() => {
     let result = contacts;
     if (filter !== 'All') {
@@ -77,7 +84,7 @@ export default function ReceiverPage() {
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + webTopInset }]}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={[styles.title, { color: colors.primary }]}>Receiver page</Text>
+          <Text style={[styles.title, { color: colors.primary }]}>{greeting}</Text>
           <Text style={[styles.countBadge, { backgroundColor: colors.primary }]}>{contacts.length}</Text>
         </View>
         <View style={styles.headerButtons}>

@@ -41,7 +41,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `lib/auth-context.tsx` - Authentication state management with AsyncStorage (email/password + Google OAuth, stores userName/userPhoto)
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
 - `app/login.tsx` - Login screen (logo, tagline, email/password, Google Sign-In, Face ID)
-- `app/(tabs)/index.tsx` - Receiver page (formerly Contacts) with search & filter
+- `app/(tabs)/index.tsx` - Receiver page (shows time-based greeting: Good morning/afternoon/evening) with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
 - `app/(tabs)/settings.tsx` - User profile & settings with navigation to Account, Notifications, Appearance
 - `app/appearance.tsx` - Theme selection screen with toggle switches
