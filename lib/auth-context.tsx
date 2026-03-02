@@ -5,7 +5,10 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   userEmail: string | null;
+  userName: string | null;
+  userPhoto: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  googleLogin: (email: string, name: string, photo: string | null) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -17,6 +20,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     loadAuth();
@@ -29,6 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = JSON.parse(stored);
         setIsAuthenticated(true);
         setUserEmail(data.email);
+        setUserName(data.name || null);
+        setUserPhoto(data.photo || null);
       }
     } catch (e) {
       console.error('Failed to load auth', e);
@@ -42,21 +49,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const authData = { email: email.trim(), loggedInAt: Date.now() };
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(authData));
       setUserEmail(email.trim());
+      setUserName(null);
+      setUserPhoto(null);
       setIsAuthenticated(true);
       return true;
     }
     return false;
   };
 
+  const googleLogin = async (email: string, name: string, photo: string | null): Promise<boolean> => {
+    const authData = { email, name, photo, provider: 'google', loggedInAt: Date.now() };
+    await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+    setUserEmail(email);
+    setUserName(name);
+    setUserPhoto(photo);
+    setIsAuthenticated(true);
+    return true;
+  };
+
   const logout = async () => {
     await AsyncStorage.removeItem(AUTH_KEY);
     setIsAuthenticated(false);
     setUserEmail(null);
+    setUserName(null);
+    setUserPhoto(null);
   };
 
   const value = useMemo(
-    () => ({ isAuthenticated, isLoading, userEmail, login, logout }),
-    [isAuthenticated, isLoading, userEmail],
+    () => ({ isAuthenticated, isLoading, userEmail, userName, userPhoto, login, googleLogin, logout }),
+    [isAuthenticated, isLoading, userEmail, userName, userPhoto],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -18,6 +18,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-03-01: Added QR code download/save button on contact detail (expo-file-system + expo-sharing)
 - 2026-03-01: QR code payload included in SMS messages; QR preview shown on send-message screen
 - 2026-03-01: QR scanner redirects to Receiver page on successful scan
+- 2026-03-02: Added Google Sign-In via expo-auth-session (alongside email/password login)
 
 ## User Preferences
 - Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
@@ -29,7 +30,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 ## Project Architecture
 - **Frontend**: Expo Router with file-based routing, React Context for contacts & auth state, AsyncStorage for persistence
 - **Backend**: Express on port 5000 with Twilio and Vonage SMS endpoints
-- **Auth**: Simple email/password login stored in AsyncStorage, auth gate in root layout
+- **Auth**: Email/password + Google OAuth login stored in AsyncStorage, auth gate in root layout
 - **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
 - **Stack**: contact-detail, appearance, notifications, account, privacy, help-support, qr-scanner (all with swipe-back gesture)
@@ -37,15 +38,15 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 
 ### Key Files
 - `lib/theme-context.tsx` - Theme system with Orange & Blue Orange palettes, useColors() hook, AsyncStorage persistence
-- `lib/auth-context.tsx` - Authentication state management with AsyncStorage
+- `lib/auth-context.tsx` - Authentication state management with AsyncStorage (email/password + Google OAuth, stores userName/userPhoto)
 - `lib/contacts-context.tsx` - Contact state management with AsyncStorage
-- `app/login.tsx` - Login screen (Figma design: logo, tagline, email/password, Face ID)
+- `app/login.tsx` - Login screen (logo, tagline, email/password, Google Sign-In, Face ID)
 - `app/(tabs)/index.tsx` - Receiver page (formerly Contacts) with search & filter
 - `app/(tabs)/dashboard.tsx` - Analytics dashboard with charts
 - `app/(tabs)/settings.tsx` - User profile & settings with navigation to Account, Notifications, Appearance
 - `app/appearance.tsx` - Theme selection screen with toggle switches
 - `app/notifications.tsx` - Notification preferences (Allow, Email, SMS toggles) with AsyncStorage persistence
-- `app/account.tsx` - Account info display (email, name, member since)
+- `app/account.tsx` - Account info display (email, name, member since; shows Google profile photo if signed in via Google)
 - `app/privacy.tsx` - Privacy Policy & DMCA notice (links to iubenda policy, copyright agent info)
 - `app/help-support.tsx` - Help & Support with Designated Copyright Agent contact info
 - `app/qr-scanner.tsx` - QR code scanner using expo-camera with permission handling

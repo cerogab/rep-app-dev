@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,17 +14,60 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { useColors } from '@/lib/theme-context';
 import { useAuth } from '@/lib/auth-context';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    scopes: ['profile', 'email'],
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      handleGoogleResponse(response.authentication?.accessToken);
+    }
+  }, [response]);
+
+  const handleGoogleResponse = async (accessToken: string | undefined) => {
+    if (!accessToken) {
+      Alert.alert('Sign In Failed', 'Could not get access token from Google.');
+      return;
+    }
+    setGoogleLoading(true);
+    try {
+      const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const userInfo = await userInfoRes.json();
+      if (userInfo.email) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await googleLogin(userInfo.email, userInfo.name || '', userInfo.picture || null);
+      } else {
+        Alert.alert('Sign In Failed', 'Could not retrieve your Google account info.');
+      }
+    } catch {
+      Alert.alert('Sign In Failed', 'An error occurred while signing in with Google.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const canSubmit = email.trim().length > 0 && password.trim().length > 0;
 
@@ -38,6 +81,11 @@ export default function LoginScreen() {
       Alert.alert('Sign In Failed', 'Please check your credentials and try again.');
     }
     setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await promptAsync();
   };
 
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
@@ -128,6 +176,27 @@ export default function LoginScreen() {
             <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or</Text>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.googleButton,
+              { borderColor: colors.border },
+              pressed && { backgroundColor: colors.inputBg },
+              (googleLoading || !request) && styles.signInButtonDisabled,
+            ]}
+            onPress={handleGoogleSignIn}
+            disabled={googleLoading || !request}
+            testID="google-signin"
+          >
+            {googleLoading ? (
+              <ActivityIndicator size="small" color={colors.text} />
+            ) : (
+              <>
+                <Ionicons name="logo-google" size={20} color="#4285F4" />
+                <Text style={[styles.googleButtonText, { color: colors.text }]}>Sign in with Google</Text>
+              </>
+            )}
+          </Pressable>
 
           <View style={styles.faceIdSection}>
             <View style={styles.faceIdIcon}>
@@ -249,6 +318,20 @@ const styles = StyleSheet.create({
   dividerText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 14,
+    paddingVertical: 15,
+    borderWidth: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  googleButtonText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 16,
   },
   faceIdSection: {
     alignItems: 'center',

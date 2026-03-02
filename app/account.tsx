@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   Platform,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -15,14 +16,16 @@ import { useAuth } from '@/lib/auth-context';
 export default function AccountScreen() {
   const insets = useSafeAreaInsets();
   const colors = useColors();
-  const { userEmail } = useAuth();
+  const { userEmail, userName, userPhoto } = useAuth();
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
 
-  const displayName = userEmail
+  const displayName = userName
+    ? userName
+    : userEmail
     ? userEmail.split('@')[0].toUpperCase()
     : 'USER';
 
-  const initial = displayName.charAt(0);
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -36,9 +39,13 @@ export default function AccountScreen() {
         <Text style={[styles.title, { color: colors.primary }]}>Account</Text>
 
         <View style={[styles.avatarSection]}>
-          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-            <Text style={styles.avatarText}>{initial}</Text>
-          </View>
+          {userPhoto ? (
+            <Image source={{ uri: userPhoto }} style={styles.avatarImage} />
+          ) : (
+            <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+              <Text style={styles.avatarText}>{initial}</Text>
+            </View>
+          )}
           <Text style={[styles.displayName, { color: colors.text }]}>{displayName}</Text>
         </View>
 
@@ -58,7 +65,7 @@ export default function AccountScreen() {
             </View>
             <View style={styles.rowContent}>
               <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Name</Text>
-              <Text style={[styles.rowValue, { color: colors.text }]}>{displayName}</Text>
+              <Text style={[styles.rowValue, { color: colors.text }]}>{userName || displayName}</Text>
             </View>
           </View>
           <View style={styles.row}>
@@ -115,6 +122,11 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
   },
   avatarText: {
     fontFamily: 'Inter_700Bold',
