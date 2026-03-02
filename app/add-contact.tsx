@@ -98,6 +98,18 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Phone</Text>
+          <TextInput
+            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
+            placeholder="Enter phone number"
+            placeholderTextColor={colors.textTertiary}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+        </View>
+
+        <View style={styles.fieldGroup}>
           <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Email (Optional)</Text>
           <TextInput
             style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
@@ -107,18 +119,6 @@ export default function AddContactScreen() {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-          />
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Phone</Text>
-          <TextInput
-            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
-            placeholder="Enter phone number"
-            placeholderTextColor={colors.textTertiary}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
           />
         </View>
 
