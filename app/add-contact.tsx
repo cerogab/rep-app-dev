@@ -31,7 +31,7 @@ export default function AddContactScreen() {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const canSave = fullName.trim().length > 0 && email.trim().length > 0;
+  const canSave = fullName.trim().length > 0;
 
   const handleSave = async () => {
     if (!canSave) return;
@@ -98,7 +98,7 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Email</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Email (Optional)</Text>
           <TextInput
             style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter email address"
@@ -111,7 +111,7 @@ export default function AddContactScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Phone</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Phone (Optional)</Text>
           <TextInput
             style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
             placeholder="Enter phone number"
