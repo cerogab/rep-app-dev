@@ -26,7 +26,6 @@ export default function AddContactScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [company, setCompany] = useState('');
   const [category, setCategory] = useState<ContactCategory>('New');
   const [frequency, setFrequency] = useState<MessageFrequency>('Monthly');
   const [notes, setNotes] = useState('');
@@ -42,7 +41,6 @@ export default function AddContactScreen() {
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
-      company: company.trim(),
       category,
       frequency,
       notes: notes.trim(),
@@ -121,17 +119,6 @@ export default function AddContactScreen() {
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
-          />
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Company</Text>
-          <TextInput
-            style={[styles.input, { color: colors.text, backgroundColor: colors.inputBg, borderColor: colors.border }]}
-            placeholder="Enter company name"
-            placeholderTextColor={colors.textTertiary}
-            value={company}
-            onChangeText={setCompany}
           />
         </View>
 
