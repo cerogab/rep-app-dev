@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,12 +14,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
 import { useColors } from '@/lib/theme-context';
 import { useAuth } from '@/lib/auth-context';
 
 WebBrowser.maybeCompleteAuthSession();
+
+const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
@@ -30,44 +32,6 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    scopes: ['profile', 'email'],
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      handleGoogleResponse(response.authentication?.accessToken);
-    }
-  }, [response]);
-
-  const handleGoogleResponse = async (accessToken: string | undefined) => {
-    if (!accessToken) {
-      Alert.alert('Sign In Failed', 'Could not get access token from Google.');
-      return;
-    }
-    setGoogleLoading(true);
-    try {
-      const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const userInfo = await userInfoRes.json();
-      if (userInfo.email) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        await googleLogin(userInfo.email, userInfo.name || '', userInfo.picture || null);
-      } else {
-        Alert.alert('Sign In Failed', 'Could not retrieve your Google account info.');
-      }
-    } catch {
-      Alert.alert('Sign In Failed', 'An error occurred while signing in with Google.');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
 
   const canSubmit = email.trim().length > 0 && password.trim().length > 0;
 
@@ -84,8 +48,47 @@ export default function LoginScreen() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!GOOGLE_CLIENT_ID) {
+      Alert.alert('Not Configured', 'Google Sign-In is not configured yet.');
+      return;
+    }
+    setGoogleLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    await promptAsync();
+
+    try {
+      const redirectUri = makeRedirectUri({ preferLocalhost: true });
+      const authUrl =
+        `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_type=token` +
+        `&scope=${encodeURIComponent('profile email')}`;
+
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+
+      if (result.type === 'success' && result.url) {
+        const params = new URLSearchParams(result.url.split('#')[1]);
+        const accessToken = params.get('access_token');
+        if (accessToken) {
+          const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          const userInfo = await userInfoRes.json();
+          if (userInfo.email) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            await googleLogin(userInfo.email, userInfo.name || '', userInfo.picture || null);
+          } else {
+            Alert.alert('Sign In Failed', 'Could not retrieve your Google account info.');
+          }
+        } else {
+          Alert.alert('Sign In Failed', 'Could not get access token from Google.');
+        }
+      }
+    } catch {
+      Alert.alert('Sign In Failed', 'An error occurred while signing in with Google.');
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
@@ -182,10 +185,10 @@ export default function LoginScreen() {
               styles.googleButton,
               { borderColor: colors.border },
               pressed && { backgroundColor: colors.inputBg },
-              (googleLoading || !request) && styles.signInButtonDisabled,
+              googleLoading && styles.signInButtonDisabled,
             ]}
             onPress={handleGoogleSignIn}
-            disabled={googleLoading || !request}
+            disabled={googleLoading}
             testID="google-signin"
           >
             {googleLoading ? (
