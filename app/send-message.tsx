@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -32,6 +33,36 @@ export default function SendMessageScreen() {
   const contact = useMemo(() => contacts.find((c) => c.id === id), [contacts, id]);
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const successOpacity = useRef(new Animated.Value(0)).current;
+  const checkScale = useRef(new Animated.Value(0.3)).current;
+
+  const animateSuccess = () => {
+    setShowSuccess(true);
+    Animated.parallel([
+      Animated.timing(successOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.spring(checkScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setTimeout(() => {
+        Animated.timing(successOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          router.back();
+        });
+      }, 1200);
+    });
+  };
 
   if (!contact) {
     return (
@@ -78,9 +109,7 @@ export default function SendMessageScreen() {
       await updateContact(contact.id, updates);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Message Sent', `Your message has been sent to ${contact.fullName}.`, [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      animateSuccess();
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(
@@ -206,6 +235,18 @@ export default function SendMessageScreen() {
           )}
         </Pressable>
       </ScrollView>
+
+      {showSuccess && (
+        <Animated.View style={[styles.successOverlay, { opacity: successOpacity }]}>
+          <Animated.View style={[styles.successContent, { transform: [{ scale: checkScale }] }]}>
+            <View style={styles.checkCircle}>
+              <Ionicons name="checkmark" size={64} color="#FFFFFF" />
+            </View>
+            <Text style={styles.successTitle}>Message Sent!</Text>
+            <Text style={styles.successSubtitle}>Delivered via Twilio</Text>
+          </Animated.View>
+        </Animated.View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -347,5 +388,35 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  successOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#22C55E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  successContent: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  checkCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  successTitle: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 28,
+    color: '#FFFFFF',
+  },
+  successSubtitle: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.85)',
   },
 });
