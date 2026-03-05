@@ -14,20 +14,12 @@ function getTwilioClient() {
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/supabase-test", async (_req, res) => {
     try {
-      const { data, error } = await supabase.from("_test_connection").select("*").limit(1);
-
-      if (error && error.code === "42P01") {
-        return res.json({
-          success: true,
-          message: "Supabase connected successfully (no tables found yet, but connection is working)",
-          details: { connected: true, error: null },
-        });
-      }
+      const { data, error } = await supabase.from("namesz").select("*").limit(1);
 
       if (error) {
         return res.json({
-          success: true,
-          message: "Supabase connected (query returned a known error, connection is live)",
+          success: false,
+          message: "Supabase connected but query failed",
           details: { connected: true, errorCode: error.code, errorMessage: error.message },
         });
       }
@@ -96,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { data: contacts, error } = await supabase
-        .from("contacts")
+        .from("namesz")
         .select("name, phone");
 
       if (error) {
