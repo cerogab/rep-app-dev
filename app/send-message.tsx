@@ -65,7 +65,7 @@ export default function SendMessageScreen() {
     const fullMessage = `${message.trim()}\n\nScan QR Code: ${qrPayload}`;
 
     try {
-      await apiRequest('POST', '/api/send-vonage-message', {
+      await apiRequest('POST', '/api/send-message', {
         phone: contact.phone,
         message: fullMessage,
         contactName: contact.fullName,
@@ -85,7 +85,7 @@ export default function SendMessageScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(
         'Message Queued',
-        `Message saved for ${contact.fullName}. Vonage is not configured yet - set up your API keys to send SMS.`,
+        `Message saved for ${contact.fullName}. Twilio is not configured yet - set up your API keys to send SMS.`,
         [{ text: 'OK', onPress: () => router.back() }],
       );
     } finally {

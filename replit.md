@@ -12,7 +12,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-02-22: Revised logo and theme colors to warm orange/red palette matching new Bram logo
 - 2026-02-22: Added theme system with Orange and Blue Orange themes, Appearance page, dynamic theming across all screens
 - 2026-02-24: Added Notifications and Account sub-pages in Settings, swipe-back gesture on all settings screens
-- 2026-03-01: Added Vonage SMS integration, "Send Message" button on New contact cards, sent state tracking
+- 2026-03-01: Added "Send Message" button on New contact cards, sent state tracking
 - 2026-03-01: Added Privacy screen with Privacy Policy, DMCA notice, and copyright agent contact info
 - 2026-03-01: Added QR code scanner (expo-camera) with scan button on Receiver page header
 - 2026-03-01: Added QR code download/save button on contact detail (expo-file-system + expo-sharing)
@@ -25,11 +25,10 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - Theme selection persisted in AsyncStorage under '@bram_theme' key
 - Inter font family throughout
 - Manual Twilio API key setup (not connector OAuth)
-- Manual Vonage API key setup for SMS
 
 ## Project Architecture
 - **Frontend**: Expo Router with file-based routing, React Context for contacts & auth state, AsyncStorage for persistence
-- **Backend**: Express on port 5000 with Twilio and Vonage SMS endpoints
+- **Backend**: Express on port 5000 with Twilio SMS endpoints
 - **Auth**: Email/password + Google OAuth login stored in AsyncStorage, auth gate in root layout
 - **Tabs**: Receiver page (index), Trends (dashboard), Settings
 - **Modals**: add-contact, send-message
@@ -53,7 +52,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - `app/add-contact.tsx` - Add new contact modal
 - `app/contact-detail.tsx` - Contact detail view with notes editing, QR code with save/download button
 - `app/send-message.tsx` - SMS message composer with templates, QR code preview and payload included in SMS
-- `server/routes.ts` - Twilio and Vonage SMS API endpoints
+- `server/routes.ts` - Twilio SMS API endpoints
 - `constants/colors.ts` - Static color definitions (legacy, all screens now use useColors() from theme-context)
 
 ### Theming System
@@ -74,8 +73,5 @@ All screens use `useColors()` hook from `lib/theme-context.tsx` for dynamic colo
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
 Messages are queued if Twilio is not configured.
 
-### Vonage SMS Setup
-Requires env vars: VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_FROM_NUMBER
-Send-message screen uses Vonage by default. Messages are queued if Vonage is not configured.
 Contact cards for "New" clients show a "Send Message" button; after sending, the button becomes disabled ("Sent").
 Contact model tracks `messageSent` boolean for this state.
