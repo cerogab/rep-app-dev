@@ -77,7 +77,11 @@ Test endpoint: GET `/api/supabase-test` — verifies connection is live
 
 ### Twilio Setup
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
-Messages are queued if Twilio is not configured.
+Uses official `twilio` SDK for SMS sending. Messages are queued if Twilio is not configured.
+Endpoints:
+- POST `/api/send-message` — send SMS to a single contact (used by send-message screen)
+- POST `/api/send-sms-to-all` — fetch all contacts from Supabase `contacts` table and send SMS to each (body: `{messageBody: "..."}`)
+
 
 Contact cards for "New" clients show a "Send Message" button; after sending, the button becomes disabled ("Sent").
 Contact model tracks `messageSent` boolean for this state.
