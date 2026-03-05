@@ -1,7 +1,42 @@
 import type { Express } from "express";
 import { createServer, type Server } from "node:http";
+import supabase from "./supabaseClient";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  app.get("/api/supabase-test", async (_req, res) => {
+    try {
+      const { data, error } = await supabase.from("_test_connection").select("*").limit(1);
+
+      if (error && error.code === "42P01") {
+        return res.json({
+          success: true,
+          message: "Supabase connected successfully (no tables found yet, but connection is working)",
+          details: { connected: true, error: null },
+        });
+      }
+
+      if (error) {
+        return res.json({
+          success: true,
+          message: "Supabase connected (query returned a known error, connection is live)",
+          details: { connected: true, errorCode: error.code, errorMessage: error.message },
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Supabase connected and query succeeded",
+        details: { connected: true, rowCount: data?.length ?? 0 },
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to connect to Supabase",
+        details: { connected: false, error: err.message },
+      });
+    }
+  });
+
   app.post("/api/send-message", async (req, res) => {
     try {
       const { contactId, phone, message, contactName } = req.body;

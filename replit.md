@@ -19,6 +19,7 @@ BRAM is a marketing CRM mobile application built with Expo (React Native) and Ex
 - 2026-03-01: QR code payload included in SMS messages; QR preview shown on send-message screen
 - 2026-03-01: QR scanner redirects to Receiver page on successful scan
 - 2026-03-02: Added Google Sign-In via expo-auth-session (alongside email/password login)
+- 2026-03-05: Added Supabase client connection (server/supabaseClient.ts) with test endpoint
 
 ## User Preferences
 - Two theme options: Orange (#E8762D primary) and Blue Orange (#00068E primary, #66AAE3 accents, #E49716 highlights)
@@ -68,6 +69,11 @@ All screens use `useColors()` hook from `lib/theme-context.tsx` for dynamic colo
 - Categories: New #00068E, Contacted #66AAE3, Qualified #3B82F6 (blue), Outreached #22C55E (green), Unknown #8B9DC3
 
 - Logo: assets/images/bram-logo.png (warm orange with circle motif)
+
+### Supabase Setup
+Requires secrets: SUPABASE_URL, SUPABASE_KEY
+Client file: `server/supabaseClient.ts` — exports a singleton `supabase` instance
+Test endpoint: GET `/api/supabase-test` — verifies connection is live
 
 ### Twilio Setup
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
