@@ -75,6 +75,10 @@ Requires secrets: SUPABASE_URL, SUPABASE_KEY
 Client file: `server/supabaseClient.ts` — exports a singleton `supabase` instance
 Test endpoint: GET `/api/supabase-test` — verifies connection is live
 
+### Supabase Endpoints
+- GET `/api/supabase-test` — verifies connection to `namesz` table
+- POST `/api/save-contact` — saves a new contact to `namesz` table (body: `{name, phone, email?, category?, frequency?, notes?}`)
+
 ### Twilio Setup
 Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
 Uses official `twilio` SDK for SMS sending. Messages are queued if Twilio is not configured.

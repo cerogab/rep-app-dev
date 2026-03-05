@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -18,6 +19,7 @@ import { useColors } from '@/lib/theme-context';
 import { useContacts, ContactCategory, MessageFrequency } from '@/lib/contacts-context';
 import { CategoryChips } from '@/components/CategoryChips';
 import { FrequencySelector } from '@/components/FrequencySelector';
+import { apiRequest } from '@/lib/query-client';
 
 export default function AddContactScreen() {
   const insets = useSafeAreaInsets();
@@ -30,23 +32,73 @@ export default function AddContactScreen() {
   const [frequency, setFrequency] = useState<MessageFrequency>('Monthly');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const successOpacity = useRef(new Animated.Value(0)).current;
+  const checkScale = useRef(new Animated.Value(0.3)).current;
 
   const canSave = fullName.trim().length > 0 && phone.trim().length > 0;
+
+  const animateSuccess = () => {
+    setShowSuccess(true);
+    Animated.parallel([
+      Animated.timing(successOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.spring(checkScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setTimeout(() => {
+        Animated.timing(successOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          router.back();
+        });
+      }, 1200);
+    });
+  };
 
   const handleSave = async () => {
     if (!canSave) return;
     setSaving(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    await addContact({
-      fullName: fullName.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      category,
-      frequency,
-      notes: notes.trim(),
-    });
-    setSaving(false);
-    router.back();
+
+    try {
+      await apiRequest('POST', '/api/save-contact', {
+        name: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim() || null,
+        category,
+        frequency,
+        notes: notes.trim() || null,
+      });
+
+      await addContact({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        category,
+        frequency,
+        notes: notes.trim(),
+      });
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      animateSuccess();
+    } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert(
+        'Save Failed',
+        'Could not save contact to the database. Please try again.',
+        [{ text: 'OK' }],
+      );
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -146,6 +198,17 @@ export default function AddContactScreen() {
           />
         </View>
       </ScrollView>
+
+      {showSuccess && (
+        <Animated.View style={[styles.successOverlay, { opacity: successOpacity }]}>
+          <Animated.View style={[styles.successContent, { transform: [{ scale: checkScale }] }]}>
+            <View style={styles.checkCircle}>
+              <Ionicons name="checkmark" size={64} color="#FFFFFF" />
+            </View>
+            <Text style={styles.successTitle}>Saved Contact</Text>
+          </Animated.View>
+        </Animated.View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -206,5 +269,30 @@ const styles = StyleSheet.create({
   notesInput: {
     height: 120,
     paddingTop: 14,
+  },
+  successOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#22C55E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  successContent: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  checkCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  successTitle: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 28,
+    color: '#FFFFFF',
   },
 });

@@ -146,6 +146,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/save-contact", async (req, res) => {
+    try {
+      const { name, phone, email, category, frequency, notes } = req.body;
+
+      if (!name || !phone) {
+        return res.status(400).json({ error: "Name and phone are required" });
+      }
+
+      const { data, error } = await supabase
+        .from("namesz")
+        .insert({ name, phone, email, category, frequency, notes })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("[BRAM] Supabase save contact error:", error.message);
+        return res.status(500).json({ error: "Failed to save contact", details: error.message });
+      }
+
+      console.log(`[BRAM] Contact saved to Supabase: ${name} (${phone})`);
+      return res.json({ success: true, contact: data });
+    } catch (err: any) {
+      console.error("[BRAM] Save contact error:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/contacts/stats", async (_req, res) => {
     res.json({
       totalContacts: 0,
