@@ -243,7 +243,6 @@ export default function SendMessageScreen() {
               <Ionicons name="checkmark" size={64} color="#FFFFFF" />
             </View>
             <Text style={styles.successTitle}>Message Sent!</Text>
-            <Text style={styles.successSubtitle}>Delivered via Twilio</Text>
           </Animated.View>
         </Animated.View>
       )}
@@ -413,10 +412,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: 28,
     color: '#FFFFFF',
-  },
-  successSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.85)',
   },
 });
