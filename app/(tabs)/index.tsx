@@ -85,7 +85,6 @@ export default function ReceiverPage() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={[styles.title, { color: colors.primary }]}>{greeting}</Text>
-          <Text style={[styles.countBadge, { backgroundColor: colors.primary }]}>{contacts.length}</Text>
         </View>
         <View style={styles.headerButtons}>
           <Pressable
@@ -127,6 +126,7 @@ export default function ReceiverPage() {
 
       <View style={styles.filterContainer}>
         <FilterChips selected={filter} onSelect={setFilter} />
+        <Text style={[styles.countBadge, { backgroundColor: colors.primary }]}>{contacts.length}</Text>
       </View>
 
       {isLoading ? (
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     overflow: 'hidden',
+    marginRight: 16,
   },
   headerButtons: {
     flexDirection: 'row',
@@ -223,6 +224,8 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
   },
   list: {
