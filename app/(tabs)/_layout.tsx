@@ -15,13 +15,13 @@ function NativeTabLayout() {
         <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
         <Label>Contacts</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="dashboard">
-        <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
-        <Label>Trends</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="qr-scanner">
         <Icon sf={{ default: "qrcode.viewfinder", selected: "qrcode.viewfinder" }} />
         <Label>Scan</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="dashboard">
+        <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
+        <Label>Trends</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
@@ -76,19 +76,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: "Trends",
-          tabBarIcon: ({ color, size }) => (
-            Platform.OS === "ios" ? (
-              <SymbolView name="chart.bar" tintColor={color} size={size} />
-            ) : (
-              <Ionicons name="bar-chart-outline" size={size} color={color} />
-            )
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="qr-scanner"
         options={{
           title: "Scan",
@@ -97,6 +84,19 @@ function ClassicTabLayout() {
               <SymbolView name="qrcode.viewfinder" tintColor={color} size={size} />
             ) : (
               <Ionicons name="qr-code-outline" size={size} color={color} />
+            )
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: "Trends",
+          tabBarIcon: ({ color, size }) => (
+            Platform.OS === "ios" ? (
+              <SymbolView name="chart.bar" tintColor={color} size={size} />
+            ) : (
+              <Ionicons name="bar-chart-outline" size={size} color={color} />
             )
           ),
         }}
