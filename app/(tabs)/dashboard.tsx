@@ -162,7 +162,7 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      <Text style={[styles.pageTitle, { color: colors.primary }]}>Total Discount Received</Text>
+      <Text style={[styles.pageTitle, { color: colors.primary }]}>Calculator</Text>
     </ScrollView>
   );
 }
