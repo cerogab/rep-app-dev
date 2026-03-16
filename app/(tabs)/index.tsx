@@ -89,16 +89,6 @@ export default function ReceiverPage() {
         <View style={styles.headerButtons}>
           <Pressable
             style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              router.push('/qr-scanner');
-            }}
-            hitSlop={8}
-          >
-            <Ionicons name="qr-code-outline" size={22} color={colors.white} />
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.addBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, pressed && styles.addBtnPressed]}
             onPress={handleAddNew}
             hitSlop={8}
           >
