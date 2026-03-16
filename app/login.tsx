@@ -248,6 +248,13 @@ export default function LoginScreen() {
             )}
           </Pressable>
 
+          <View style={styles.signupRow}>
+            <Text style={[styles.signupText, { color: colors.textSecondary }]}>Don't have an account? </Text>
+            <Pressable onPress={() => Linking.openURL('https://bramllc.app/get-started')} hitSlop={8}>
+              <Text style={[styles.signupLink, { color: colors.primary }]}>Bram</Text>
+            </Pressable>
+          </View>
+
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -372,5 +379,20 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
+  },
+  signupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  signupText: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+  },
+  signupLink: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
