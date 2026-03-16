@@ -42,19 +42,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         document.querySelector('p').textContent = 'Sign-in failed. Please close this window and try again.';
         return;
       }
-      try {
-        var stateObj = JSON.parse(atob(state));
-        var returnUrl = stateObj.returnUrl;
-        if (!returnUrl) throw new Error('no returnUrl');
-        // Redirect back to the Expo app with the token
-        window.location.replace(
-          returnUrl + (returnUrl.indexOf('?') >= 0 ? '&' : '?') +
-          'access_token=' + encodeURIComponent(token) +
-          '&state=' + encodeURIComponent(state)
-        );
-      } catch (e) {
-        document.querySelector('p').textContent = 'Sign-in error. Please close this window and try again.';
+      // State format: "NONCE:::RETURN_URL"
+      var sep = state.indexOf(':::');
+      if (sep < 0) {
+        document.querySelector('p').textContent = 'Sign-in error: invalid state. Please close and try again.';
+        return;
       }
+      var returnUrl = state.substring(sep + 3);
+      if (!returnUrl) {
+        document.querySelector('p').textContent = 'Sign-in error: missing return URL. Please close and try again.';
+        return;
+      }
+      // Bounce back to the Expo app with token + state as query params
+      var sep2 = returnUrl.indexOf('?') >= 0 ? '&' : '?';
+      window.location.replace(
+        returnUrl + sep2 +
+        'access_token=' + encodeURIComponent(token) +
+        '&state=' + encodeURIComponent(state)
+      );
     })();
   </script>
 </body>

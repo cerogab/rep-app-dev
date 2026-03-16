@@ -56,19 +56,19 @@ export default function LoginScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      // Build the HTTPS backend callback URL (strip port from EXPO_PUBLIC_DOMAIN)
+      // HTTPS backend callback URL — the only scheme Google accepts
       const rawDomain = (process.env.EXPO_PUBLIC_DOMAIN ?? '').replace(/:\d+$/, '');
       const callbackUrl = `https://${rawDomain}/auth/google/callback`;
 
-      // The app's deep-link that WebBrowser watches for to close itself
+      // Deep-link the WebBrowser session watches for to auto-close
       const appReturnUrl = Linking.createURL('');
 
-      // Encode nonce + return URL in state for CSRF protection
+      // State = "NONCE:::RETURN_URL" — no btoa/atob needed, works in all RN engines
       const nonce =
         Date.now().toString(36) +
         Math.random().toString(36).substring(2, 10) +
         Math.random().toString(36).substring(2, 10);
-      const statePayload = btoa(JSON.stringify({ nonce, returnUrl: appReturnUrl }));
+      const statePayload = nonce + ':::' + appReturnUrl;
 
       const authUrl =
         `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -78,31 +78,26 @@ export default function LoginScreen() {
         `&scope=${encodeURIComponent('profile email')}` +
         `&state=${encodeURIComponent(statePayload)}`;
 
-      // Watch for the app's deep-link scheme — callback page bounces back to it
       const result = await WebBrowser.openAuthSessionAsync(authUrl, appReturnUrl);
 
       if (result.type !== 'success' || !result.url) {
         return; // user cancelled
       }
 
-      // Token arrives as query params (our callback page uses window.location.replace with ?params)
-      const returnedUrl = new URL(result.url);
-      const accessToken = returnedUrl.searchParams.get('access_token');
-      const returnedState = returnedUrl.searchParams.get('state');
+      // Parse query string without new URL() — avoids custom-scheme issues in RN
+      const qIdx = result.url.indexOf('?');
+      const qs = qIdx >= 0 ? result.url.substring(qIdx + 1) : '';
+      const params = new URLSearchParams(qs);
+      const accessToken = params.get('access_token');
+      const returnedState = params.get('state');
 
-      // Validate state nonce to prevent CSRF
+      // Validate CSRF nonce
       if (!returnedState) {
         Alert.alert('Sign In Failed', 'Missing state. Please try again.');
         return;
       }
-      let parsedState: { nonce: string; returnUrl: string };
-      try {
-        parsedState = JSON.parse(atob(returnedState));
-      } catch {
-        Alert.alert('Sign In Failed', 'Invalid state. Please try again.');
-        return;
-      }
-      if (parsedState.nonce !== nonce) {
+      const sepIdx = returnedState.indexOf(':::');
+      if (sepIdx < 0 || returnedState.substring(0, sepIdx) !== nonce) {
         Alert.alert('Sign In Failed', 'State mismatch. Please try again.');
         return;
       }
@@ -112,7 +107,7 @@ export default function LoginScreen() {
         return;
       }
 
-      // Fetch user profile from Google
+      // Fetch Google profile
       const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -131,7 +126,8 @@ export default function LoginScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await googleLogin(userInfo.email, userInfo.name ?? '', userInfo.picture ?? null);
-    } catch {
+    } catch (err) {
+      console.error('[BRAM] Google sign-in error:', err);
       Alert.alert('Sign In Failed', 'An error occurred while signing in with Google.');
     } finally {
       setGoogleLoading(false);
