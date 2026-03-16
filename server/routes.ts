@@ -12,6 +12,56 @@ function getTwilioClient() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Google OAuth callback — receives implicit-flow redirect from Google,
+  // extracts the token from the hash fragment via browser JS, then
+  // redirects back to the Expo app using the returnUrl encoded in state.
+  app.get("/auth/google/callback", (_req, res) => {
+    res.setHeader("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Signing in to BRAM…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; display: flex; align-items: center;
+           justify-content: center; height: 100vh; margin: 0;
+           background: #FDF6F0; color: #2D1408; }
+    p { font-size: 18px; }
+  </style>
+</head>
+<body>
+  <p>Completing sign in…</p>
+  <script>
+    (function () {
+      var hash = window.location.hash.substring(1);
+      var params = new URLSearchParams(hash);
+      var token = params.get('access_token');
+      var state = params.get('state');
+      if (!token || !state) {
+        document.querySelector('p').textContent = 'Sign-in failed. Please close this window and try again.';
+        return;
+      }
+      try {
+        var stateObj = JSON.parse(atob(state));
+        var returnUrl = stateObj.returnUrl;
+        if (!returnUrl) throw new Error('no returnUrl');
+        // Redirect back to the Expo app with the token
+        window.location.replace(
+          returnUrl + (returnUrl.indexOf('?') >= 0 ? '&' : '?') +
+          'access_token=' + encodeURIComponent(token) +
+          '&state=' + encodeURIComponent(state)
+        );
+      } catch (e) {
+        document.querySelector('p').textContent = 'Sign-in error. Please close this window and try again.';
+      }
+    })();
+  </script>
+</body>
+</html>`);
+  });
+
+
   app.get("/api/supabase-test", async (_req, res) => {
     try {
       const { data, error } = await supabase.from("namesz").select("*").limit(1);

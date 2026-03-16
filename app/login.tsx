@@ -56,41 +56,57 @@ export default function LoginScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      const redirectUri = Linking.createURL('');
+      // Build the HTTPS backend callback URL (strip port from EXPO_PUBLIC_DOMAIN)
+      const rawDomain = (process.env.EXPO_PUBLIC_DOMAIN ?? '').replace(/:\d+$/, '');
+      const callbackUrl = `https://${rawDomain}/auth/google/callback`;
 
-      // Generate a random state token to prevent CSRF (per Google OAuth policy)
-      const state =
+      // The app's deep-link that WebBrowser watches for to close itself
+      const appReturnUrl = Linking.createURL('');
+
+      // Encode nonce + return URL in state for CSRF protection
+      const nonce =
         Date.now().toString(36) +
         Math.random().toString(36).substring(2, 10) +
         Math.random().toString(36).substring(2, 10);
+      const statePayload = btoa(JSON.stringify({ nonce, returnUrl: appReturnUrl }));
 
       const authUrl =
         `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&redirect_uri=${encodeURIComponent(callbackUrl)}` +
         `&response_type=token` +
         `&scope=${encodeURIComponent('profile email')}` +
-        `&state=${encodeURIComponent(state)}`;
+        `&state=${encodeURIComponent(statePayload)}`;
 
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+      // Watch for the app's deep-link scheme — callback page bounces back to it
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, appReturnUrl);
 
       if (result.type !== 'success' || !result.url) {
-        // User cancelled or browser closed — not an error
+        return; // user cancelled
+      }
+
+      // Token arrives as query params (our callback page uses window.location.replace with ?params)
+      const returnedUrl = new URL(result.url);
+      const accessToken = returnedUrl.searchParams.get('access_token');
+      const returnedState = returnedUrl.searchParams.get('state');
+
+      // Validate state nonce to prevent CSRF
+      if (!returnedState) {
+        Alert.alert('Sign In Failed', 'Missing state. Please try again.');
+        return;
+      }
+      let parsedState: { nonce: string; returnUrl: string };
+      try {
+        parsedState = JSON.parse(atob(returnedState));
+      } catch {
+        Alert.alert('Sign In Failed', 'Invalid state. Please try again.');
+        return;
+      }
+      if (parsedState.nonce !== nonce) {
+        Alert.alert('Sign In Failed', 'State mismatch. Please try again.');
         return;
       }
 
-      // Parse fragment (implicit flow returns token in hash)
-      const fragment = result.url.split('#')[1] ?? '';
-      const params = new URLSearchParams(fragment);
-
-      // Validate state to prevent CSRF
-      const returnedState = params.get('state');
-      if (returnedState !== state) {
-        Alert.alert('Sign In Failed', 'Invalid state parameter. Please try again.');
-        return;
-      }
-
-      const accessToken = params.get('access_token');
       if (!accessToken) {
         Alert.alert('Sign In Failed', 'No access token received. Please try again.');
         return;
