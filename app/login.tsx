@@ -49,7 +49,7 @@ export default function LoginScreen() {
 
   const handleGoogleSignIn = async () => {
     if (!GOOGLE_CLIENT_ID) {
-      Alert.alert('Not Configured', 'Google Sign-In is not configured yet.');
+      Alert.alert('Not Configured', 'Google Sign-In is not configured yet. Please add your Google Client ID.');
       return;
     }
     setGoogleLoading(true);
@@ -57,33 +57,64 @@ export default function LoginScreen() {
 
     try {
       const redirectUri = Linking.createURL('');
+
+      // Generate a random state token to prevent CSRF (per Google OAuth policy)
+      const state =
+        Date.now().toString(36) +
+        Math.random().toString(36).substring(2, 10) +
+        Math.random().toString(36).substring(2, 10);
+
       const authUrl =
         `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
         `&redirect_uri=${encodeURIComponent(redirectUri)}` +
         `&response_type=token` +
-        `&scope=${encodeURIComponent('profile email')}`;
+        `&scope=${encodeURIComponent('profile email')}` +
+        `&state=${encodeURIComponent(state)}`;
 
       const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
 
-      if (result.type === 'success' && result.url) {
-        const params = new URLSearchParams(result.url.split('#')[1]);
-        const accessToken = params.get('access_token');
-        if (accessToken) {
-          const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-          const userInfo = await userInfoRes.json();
-          if (userInfo.email) {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            await googleLogin(userInfo.email, userInfo.name || '', userInfo.picture || null);
-          } else {
-            Alert.alert('Sign In Failed', 'Could not retrieve your Google account info.');
-          }
-        } else {
-          Alert.alert('Sign In Failed', 'Could not get access token from Google.');
-        }
+      if (result.type !== 'success' || !result.url) {
+        // User cancelled or browser closed — not an error
+        return;
       }
+
+      // Parse fragment (implicit flow returns token in hash)
+      const fragment = result.url.split('#')[1] ?? '';
+      const params = new URLSearchParams(fragment);
+
+      // Validate state to prevent CSRF
+      const returnedState = params.get('state');
+      if (returnedState !== state) {
+        Alert.alert('Sign In Failed', 'Invalid state parameter. Please try again.');
+        return;
+      }
+
+      const accessToken = params.get('access_token');
+      if (!accessToken) {
+        Alert.alert('Sign In Failed', 'No access token received. Please try again.');
+        return;
+      }
+
+      // Fetch user profile from Google
+      const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!userInfoRes.ok) {
+        Alert.alert('Sign In Failed', 'Could not retrieve your Google profile. Please try again.');
+        return;
+      }
+
+      const userInfo = await userInfoRes.json();
+
+      if (!userInfo.email) {
+        Alert.alert('Sign In Failed', 'Could not retrieve your Google account email.');
+        return;
+      }
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      await googleLogin(userInfo.email, userInfo.name ?? '', userInfo.picture ?? null);
     } catch {
       Alert.alert('Sign In Failed', 'An error occurred while signing in with Google.');
     } finally {
