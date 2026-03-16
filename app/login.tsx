@@ -232,16 +232,6 @@ export default function LoginScreen() {
             )}
           </Pressable>
 
-          <View style={styles.faceIdSection}>
-            <View style={styles.faceIdIcon}>
-              <View style={[styles.faceIdCornerTL, { borderColor: colors.primary }]} />
-              <View style={[styles.faceIdCornerTR, { borderColor: colors.primary }]} />
-              <View style={[styles.faceIdCornerBL, { borderColor: colors.primary }]} />
-              <View style={[styles.faceIdCornerBR, { borderColor: colors.primary }]} />
-              <Ionicons name="scan-outline" size={32} color={colors.primary} />
-            </View>
-            <Text style={[styles.faceIdText, { color: colors.primary }]}>Face ID</Text>
-          </View>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -366,60 +356,5 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-  },
-  faceIdSection: {
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 4,
-  },
-  faceIdIcon: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  faceIdCornerTL: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 12,
-    height: 12,
-    borderTopWidth: 2,
-    borderLeftWidth: 2,
-    borderTopLeftRadius: 4,
-  },
-  faceIdCornerTR: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 12,
-    height: 12,
-    borderTopWidth: 2,
-    borderRightWidth: 2,
-    borderTopRightRadius: 4,
-  },
-  faceIdCornerBL: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: 12,
-    height: 12,
-    borderBottomWidth: 2,
-    borderLeftWidth: 2,
-    borderBottomLeftRadius: 4,
-  },
-  faceIdCornerBR: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 12,
-    height: 12,
-    borderBottomWidth: 2,
-    borderRightWidth: 2,
-    borderBottomRightRadius: 4,
-  },
-  faceIdText: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 13,
   },
 });
