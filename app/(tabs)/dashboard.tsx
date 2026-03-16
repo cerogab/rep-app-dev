@@ -62,8 +62,6 @@ export default function DashboardScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.pageTitle, { color: colors.primary }]}>Total Discount Received</Text>
-
       <View style={[styles.revenueCard, { backgroundColor: colors.primaryDark }]}>
         <Text style={styles.revenueLabel}>MONTHLY REVENUE ($)</Text>
         <View style={[styles.revenueInputWrap, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
@@ -163,6 +161,8 @@ export default function DashboardScreen() {
           </View>
         </View>
       </View>
+
+      <Text style={[styles.pageTitle, { color: colors.primary }]}>Total Discount Received</Text>
     </ScrollView>
   );
 }
